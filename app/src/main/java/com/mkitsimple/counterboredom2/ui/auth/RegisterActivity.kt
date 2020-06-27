@@ -14,9 +14,14 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.ui.main.MainActivity
+import com.mkitsimple.counterboredom2.utils.Coroutines
+import com.mkitsimple.counterboredom2.utils.longToast
 import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_register.*
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.newTask
 import javax.inject.Inject
 
 class RegisterActivity : AppCompatActivity() {
@@ -69,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         buttonRegister.setOnClickListener {
-            //performRegister()
+            performRegister()
         }
     }
 
@@ -90,66 +95,89 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-//    private fun performRegister() {
-//        val username = editTextUsername.text.toString()
-//        val email = editTextEmail.text.toString()
-//        val password = editTextPassword.text.toString()
-//
-//        if (username.isEmpty()) {
-//            toast("Please fill out username")
-//            return
-//        }
-//
-//        if (email.isEmpty()) {
-//            toast("Please fill out email")
-//            return
-//        }
-//
-//        if (password.isEmpty()) {
-//            toast("Please fill out password")
-//            return
-//        }
-//
+    private fun performRegister() {
+        val username = editTextUsername.text.toString()
+        val email = editTextEmail.text.toString()
+        val password = editTextPassword.text.toString()
+
+        if (username.isEmpty()) {
+            toast("Please fill out username")
+            return
+        }
+
+        if (email.isEmpty()) {
+            toast("Please fill out email")
+            return
+        }
+
+        if (password.isEmpty()) {
+            toast("Please fill out password")
+            return
+        }
+
 //        viewModel.performRegister(email, password)
 //        viewModel.isRegisterSuccessful.observe(this, Observer {
 //            if (it){
 //                uploadImageToFirebaseStorage()
 //            }
 //        })
-//    }
-//
-//    private fun uploadImageToFirebaseStorage() {
-//        if (selectedPhotoUri == null) {
-//            saveUserToFirebaseDatabase(token)
-//        } else {
-//            viewModel.uploadImageToFirebaseStorage(selectedPhotoUri!!)
-//            viewModel.mSelectedPhotoUri.observe(this, Observer {
-//                saveUserToFirebaseDatabaseWithProfileImage(it.toString(), token)
-//            })
-//        }
-//    }
-//
-//    // Save User
-//    private fun saveUserToFirebaseDatabase(token: String?) {
-//        viewModel.saveUserToFirebaseDatabase(editTextUsername.text.toString(), "null", token!!)
-//        viewModel.isSaveUserSuccessful.observe(this, Observer {
-//            if (it)
-//                loginUser()
-//        })
-//    }
-//
-//    // Save User with Profile Image
-//    private fun saveUserToFirebaseDatabaseWithProfileImage(profileImageUrl: String?, token: String?) {
-//        viewModel.saveUserToFirebaseDatabase(editTextUsername.text.toString(), profileImageUrl!!, token!!)
-//        viewModel.isSaveUserSuccessful.observe(this, Observer {
-//            if (it)
-//                loginUser()
-//        })
-//    }
-//
-//    private fun loginUser() {
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        startActivity(intent)
-//    }
+
+        Coroutines.main {
+            viewModel.performRegister(email, password)
+            viewModel.registerResult?.observe(this, Observer {
+                if (it == true) {
+                    uploadImageToFirebaseStorage()
+                } else {
+                    longToast("Failed to create user: ${it}")
+                }
+            })
+        }
+    }
+
+    private fun uploadImageToFirebaseStorage() {
+        if (selectedPhotoUri == null) {
+            saveUserToFirebaseDatabase(token)
+        } else {
+            Coroutines.main {
+                viewModel.uploadImageToFirebaseStorage(selectedPhotoUri!!)
+                viewModel.uploadResult?.observe(this, Observer {
+                    saveUserToFirebaseDatabaseWithProfileImage(it.toString(), token)
+                })
+            }
+        }
+    }
+
+    // Save User
+    private fun saveUserToFirebaseDatabase(token: String?) {
+        Coroutines.main {
+            viewModel.saveUserToFirebaseDatabase(editTextUsername.text.toString(), "null", token!!)
+            viewModel.saveUserResult?.observe(this, Observer {
+                if (it == true) {
+                    loginUser()
+                } else {
+                    longToast("Failed to upload image to storage: ${it}")
+                }
+            })
+        }
+    }
+
+    // Save User with Profile Image
+    private fun saveUserToFirebaseDatabaseWithProfileImage(profileImageUrl: String?, token: String?) {
+        Coroutines.main {
+            viewModel.saveUserToFirebaseDatabase(editTextUsername.text.toString(), profileImageUrl!!, token!!)
+            viewModel.saveUserResult?.observe(this, Observer {
+                if (it == true) {
+                    loginUser()
+                } else {
+                    longToast("Failed to upload image to storage: ${it}")
+                }
+            })
+        }
+    }
+
+    private fun loginUser() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    }
 }

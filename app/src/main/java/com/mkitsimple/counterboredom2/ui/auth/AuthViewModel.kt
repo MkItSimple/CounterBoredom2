@@ -1,13 +1,10 @@
 package com.mkitsimple.counterboredom2.ui.auth
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseUser
 import com.mkitsimple.counterboredom2.data.repositories.AuthRepository
-import com.mkitsimple.counterboredom2.utils.Coroutines
 import javax.inject.Inject
 
 
@@ -44,26 +41,32 @@ class AuthViewModel @Inject constructor() : ViewModel(){
 //    private val _loggedinUser= MutableLiveData<FirebaseUser>()
 //    val loggedinUser: LiveData<FirebaseUser>
 //        get() = _loggedinUser
-
-    var authenticatedUserLiveData : LiveData<FirebaseUser>? = null
-
-    //private val _nAny = MutableLiveData<Task<AuthResult>>()
-    //val nAny: LiveData<Task<AuthResult>> get() = _nAny
-    var nAny: LiveData<Task<AuthResult>>? = null
-    //var nAny: LiveData<String>? = null
-
-    fun repositoryPerformLogin() {
-        Coroutines.main {
-            nAny = repository.performTypeAny()
-            //_nAny.value = repository.performTypeAny()
-           // nAny = "Bakit"
-            //setAny()
-        }
+    var loginResult: LiveData<Any>? = null
+    suspend fun performLogin(email: String, password: String) {
+        loginResult = repository.performLogin(email, password)
     }
 
-    fun setAny(){
-        //_nAny.value = "Hello cho"
+    var registerResult: LiveData<Any>? = null
+    suspend fun performRegister(email: String, password: String) {
+        registerResult = repository.performRegister(email, password)
     }
+
+    var uploadResult: LiveData<Any>? = null
+    suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri) {
+        uploadResult = repository.uploadImageToFirebaseStorage(selectedPhotoUri)
+    }
+
+    var saveUserResult: LiveData<Any>? = null
+    suspend fun saveUserToFirebaseDatabase(username: String, profileImage: String, token: String) {
+        saveUserResult = repository.saveUserToFirebaseDatabase(username, profileImage, token)
+    }
+
+//    fun setAny(performTypeAny: MutableLiveData<Any>) {
+//        //_nAny.value = "Hello cho"
+//        Coroutines.main{
+//            loginResult = performTypeAny
+//        }
+//    }
 
 //    fun performRegister(email: String, password: String) =
 //        Coroutines.main { repositoryPerformRegister(email, password) }

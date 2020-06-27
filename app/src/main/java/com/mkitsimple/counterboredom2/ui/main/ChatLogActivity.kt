@@ -82,13 +82,6 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-//    private fun getCurrentUser(uid: String) {
-//        chatLogViewModel.fetchFilteredUsers(uid)
-//        chatLogViewModel.user.observe(this, Observer {
-//            currentUser = it
-//        })
-//    }
-
     var selectedPhotoUri: Uri? = null // we put this outide the function . . so that we can use it later on
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -120,23 +113,6 @@ class ChatLogActivity : AppCompatActivity() {
                 })
             }
         })
-
-//        val filename = UUID.randomUUID().toString()
-//        val ref = FirebaseStorage.getInstance().getReference("/messages/$filename")
-//
-//        ref.putFile(selectedPhotoUri)
-//            .addOnSuccessListener {
-//                Log.d(TAG, "Successfully uploaded image: ${it.metadata?.path}")
-//
-//                ref.downloadUrl.addOnSuccessListener {
-//                    Log.d(TAG, "File Location: $it")
-//                    //saveUserToFirebaseDatabase(it.toString(), token)
-//                    performSendImageMessage(it.toString())
-//                }
-//            }
-//            .addOnFailureListener {
-//                Log.d(TAG, "Failed to upload image to storage: ${it.message}")
-//            }
     }
 
     private fun listenForMessages() {

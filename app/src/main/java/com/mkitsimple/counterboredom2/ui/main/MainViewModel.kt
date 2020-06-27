@@ -35,7 +35,15 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
     private lateinit var job: Job
 
-    fun fetchCurrentUser() = repository.fetchCurrentUser()
+    var fetchCurrentUserResult: LiveData<User>? = null
+    suspend fun fetchCurrentUser() {
+        fetchCurrentUserResult = repository.fetchCurrentUser()
+    }
+
+//    var saveUserResult: LiveData<Any>? = null
+//    suspend fun saveUserToFirebaseDatabase(username: String, profileImage: String, token: String) {
+//        saveUserResult = repository.saveUserToFirebaseDatabase(username, profileImage, token)
+//    }
 
     fun updateUser(profileImageUrl: String, username: String) {
         val uid = FirebaseAuth.getInstance().uid ?: ""

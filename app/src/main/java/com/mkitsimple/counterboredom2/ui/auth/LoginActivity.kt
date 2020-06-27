@@ -6,9 +6,15 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
+import com.mkitsimple.counterboredom2.ui.main.MainActivity
+import com.mkitsimple.counterboredom2.utils.Coroutines
+import com.mkitsimple.counterboredom2.utils.longToast
 import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_login.*
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.newTask
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity() {
@@ -27,46 +33,28 @@ class LoginActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(this, factory)[AuthViewModel::class.java]
 
-        buttonLogin.setOnClickListener {
-            performLogin()
-        }
-
-        textViewBackToRegister.setOnClickListener{
-            finish()
-        }
+        buttonLogin.setOnClickListener { performLogin() }
+        textViewBackToRegister.setOnClickListener{ finish() }
     }
 
     private fun performLogin() {
-//        val email = editTextEmail.text.toString()
-//        val password = editTextPassword.text.toString()
-//
-//        if (email.isEmpty() || password.isEmpty()) {
-//            toast("Please fill out email/pw.")
-//            return
-//        }
+        val email = editTextEmail.text.toString()
+        val password = editTextPassword.text.toString()
 
-        viewModel.repositoryPerformLogin()
-        viewModel.nAny?.observe(this, Observer {
-            toast("My return value: ${it.isSuccessful}")
-        })
+        if (email.isEmpty() || password.isEmpty()) {
+            toast("Please fill out email/pw.")
+            return
+        }
 
-
-//        viewModel.performLogin(email, password)
-//        viewModel.authenticatedUserLiveData?.observe(this, Observer {
-//
-//            it.let {
-//
-//            }
-//            toast("Loggedin User Email: ${it.email}")
-//        })
-//        viewModel.isLoginSuccessful.observe(this, Observer {
-//            if (it){
-//                //toast(it.toString())
-//                startActivity(intentFor<MainActivity>().clearTask().newTask())
-//            }
-//        })
-//        viewModel.errorMessage.observe(this, Observer {
-//            toast("Failed to log in: $it")
-//        })
+        Coroutines.main {
+            viewModel.performLogin(email, password)
+            viewModel.loginResult?.observe(this, Observer {
+                if (it == true) {
+                    startActivity(intentFor<MainActivity>().clearTask().newTask())
+                } else {
+                    longToast("Failed to log in: ${it}")
+                }
+            })
+        }
     }
 }

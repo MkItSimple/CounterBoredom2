@@ -1,11 +1,14 @@
 package com.mkitsimple.counterboredom2.data.repositories
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.mkitsimple.counterboredom2.data.models.User
+import java.util.*
 
 
 class AuthRepository {
@@ -14,100 +17,72 @@ class AuthRepository {
 
     //private val _signInReturnValue = MutableLiveData<Any>()
 
-    suspend fun performTypeAny() : MutableLiveData<Task<AuthResult>> {
-        val _signInReturnValue = MutableLiveData<Task<AuthResult>>()
+//    suspend fun performTypeAny() : MutableLiveData<Any> {
+//        val _signInReturnValue = MutableLiveData<Any>()
+//        //delay(10000)
+//        _signInReturnValue.value = "Failed"
+//        return _signInReturnValue
+//    }
 
-        //_signInReturnValue.value = "Hala ka"
-        mAuth.signInWithEmailAndPassword("c16@gmail.com", "111111")
-            .addOnCompleteListener {
-                // add listener here
-                _signInReturnValue.value = it
-            }
-            .addOnFailureListener {
-                //_signInReturnValue.value = it.message
-            }
+    suspend fun performLogin(email: String, password: String) : MutableLiveData<Any> {
+        val loginReturnValue = MutableLiveData<Any>()
 
-        return _signInReturnValue
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener {
+                    loginReturnValue.value = true
+                }
+                .addOnFailureListener {
+                    loginReturnValue.value = it.message
+                }
+
+        return loginReturnValue
     }
 
-//    suspend fun performLogin(email: String, password: String) : MutableLiveData<FirebaseUser> {
-//        val authenticatedUserMutableLiveData =
-//            MutableLiveData<FirebaseUser>()
-//
-//        mAuth.signInWithEmailAndPassword(email, password)
-//            .addOnCompleteListener { authTask ->
-//                //if (!it.isSuccessful) return@addOnCompleteListener
-//                if (authTask.isSuccessful()) {
-//                    //val isNewUser = authTask.result!!.additionalUserInfo.isNewUser
-//                    val firebaseUser = FirebaseAuth.getInstance().getCurrentUser()!!
-//
-////                    val uid: String = firebaseUser.uid
-////                    val name: String = firebaseUser.displayName
-////                    val mEmail: String = firebaseUser.email!!
-//                    //val user: CurrentUser = CurrentUser(firebaseUser)
-//                    authenticatedUserMutableLiveData.setValue(firebaseUser);
-//                }
-//
-//            }
-//        return authenticatedUserMutableLiveData
-//    }
+    suspend fun performRegister(email: String, password: String): MutableLiveData<Any> {
+        val registerReturnValue = MutableLiveData<Any>()
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                registerReturnValue.value = it.isSuccessful
+            }
+            .addOnFailureListener{
+                registerReturnValue.value = it.message
+            }
+        return registerReturnValue
+    }
 
-//    suspend fun performLogin(email: String, password: String): String {
-//        var loginResult : String? = ""
-//
-//        mAuth.signInWithEmailAndPassword(email, password)
-//            .addOnCompleteListener {
-//                if (!it.isSuccessful) return@addOnCompleteListener
-////                Log.d("Login", "Successfully logged in: ${it.result.user.uid}")
-//                //Log.d("Login", "Successfully logged in: ")
-//                loginResult = it.isSuccessful.toString()
-//            }
-//            .addOnFailureListener {
-//                //Toast.makeText(this, "Failed to log in: ${it.message}", Toast.LENGTH_SHORT).show()
-//                loginResult = "Failed to log in: ${it.message}"
-//            }
-//        return loginResult!!
-////        if (loginResult) {
-////            return loginResult.toString()
-////        } else {
-////            return "loginErrorMessage"
-////        }
-//    }
+    suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri): MutableLiveData<Any> {
+        val uploadReturnValue = MutableLiveData<Any>()
+        val filename = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
-//    suspend fun performRegister(email: String, password: String): String {
-//        var registerResult : String = "true"
-//
-//        mAuth.createUserWithEmailAndPassword(email, password)
-//            .addOnCompleteListener {
-//                if (!it.isSuccessful) return@addOnCompleteListener
-//                registerResult = it.isSuccessful.toString()
-//            }
-//            .addOnFailureListener{
-//                registerResult = "Failed to create user: ${it.message}"
-//            }
-//        return registerResult
-////        if (registerResult) {
-////            return registerResult.toString()
-////        } else {
-////            return "registerErrorMessage"
-////        }
-//    }
+        ref.putFile(selectedPhotoUri)
+                .addOnSuccessListener {
 
-//    suspend fun saveUserToFirebaseDatabase(): String {
-//        var saveUserResult = false
-//        if (saveUserResult) {
-//            return saveUserResult.toString()
-//        } else {
-//            return "saveErrorMessage"
-//        }
-//    }
+                    ref.downloadUrl.addOnSuccessListener {
+                        uploadReturnValue.value = it
+                    }
+                }
+                .addOnFailureListener {
+                    uploadReturnValue.value = it.message
+                }
+        return  uploadReturnValue
+    }
 
-//    suspend fun uploadImageToFirebaseStorage(): String {
-//        var uploadResult = false
-//        if (uploadResult) {
-//            return uploadResult.toString()
-//        } else {
-//            return "uploadErrorMessage"
-//        }
-//    }
+    suspend fun saveUserToFirebaseDatabase(username: String, profileImage: String, token: String): MutableLiveData<Any> {
+        val uploadReturnValue = MutableLiveData<Any>()
+
+        val uid = FirebaseAuth.getInstance().uid ?: ""
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+
+        val user = User(uid, username, profileImage, token)
+
+        ref.setValue(user)
+                .addOnSuccessListener {
+                    uploadReturnValue.value = true
+                }
+                .addOnFailureListener {
+                    uploadReturnValue.value = it.message
+                }
+        return uploadReturnValue
+    }
 }

@@ -1,11 +1,11 @@
 package com.mkitsimple.counterboredom2.ui.main
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.Nullable
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -15,8 +15,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.User
-import com.mkitsimple.counterboredom2.ui.auth.LoginActivity
 import com.mkitsimple.counterboredom2.ui.auth.RegisterActivity
+import com.mkitsimple.counterboredom2.utils.Coroutines
+import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
@@ -50,20 +51,18 @@ class MainActivity : AppCompatActivity() {
         toolbar.setTitle("")
         setSupportActionBar(toolbar)
 
-        val latestChatsFragment = com.mkitsimple.counterboredom2.ui.main.LatestChatsFragment()
-        val friendsFragment = com.mkitsimple.counterboredom2.ui.main.FriendsListFragment()
+        val latestChatsFragment = LatestChatsFragment()
+        val friendsFragment = FriendsListFragment()
+        val profileFragment = ProfileFragment()
 
         tab_layout.setupWithViewPager(view_pager)
 
-        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 0)
+        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 1)
         viewPagerAdapter.addFragment(latestChatsFragment, "LATEST CHATS")
         viewPagerAdapter.addFragment(friendsFragment, "FRIENDS LIST")
+        //viewPagerAdapter.addFragment(profileFragment, "PROFILE")
         view_pager.setAdapter(viewPagerAdapter)
         //view_pager.setCurrentItem(currentFragment!!, true)
-
-        circleImageViewMain.setOnClickListener {
-            startActivity(intentFor<ProfileActivity>())
-        }
 
         verifyUserIsLoggedIn()
         fetchCurrentUser()
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-        FragmentPagerAdapter(fm, behavior) {
+            FragmentPagerAdapter(fm, behavior) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -118,26 +117,26 @@ class MainActivity : AppCompatActivity() {
         val uid = viewModel.uid()
 
         if (uid == null) {
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, RegisterActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
     }
 
     private fun fetchCurrentUser() {
-        viewModel.fetchCurrentUser()
-        viewModel.currentUser.observe(this, Observer { cUser ->
-            currentUser = cUser
-            //Log.d(TAG, "CurrentUser Name: "+ currentUser?.username)
-            if (currentUser?.profileImageUrl != "null") {
-                Picasso.get().load(currentUser?.profileImageUrl).into(circleImageViewMain)
-            }
-        })
+        Coroutines.main {
+            viewModel.fetchCurrentUser()
+            viewModel.fetchCurrentUserResult?.observe(this, Observer {
+                currentUser = it
+                if (currentUser?.profileImageUrl != "null") {
+                    Picasso.get().load(currentUser?.profileImageUrl).into(circleImageViewMain)
+                }
+            })
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        //fetchCurrentUser()
-        //toast("Resumed")
+        fetchCurrentUser()
     }
 }

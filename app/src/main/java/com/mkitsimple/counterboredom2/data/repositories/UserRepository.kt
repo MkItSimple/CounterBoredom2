@@ -1,11 +1,14 @@
 package com.mkitsimple.counterboredom2.data.repositories
 
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.mkitsimple.counterboredom2.data.models.ChatMessage
+import com.mkitsimple.counterboredom2.data.models.Profile
+import com.mkitsimple.counterboredom2.data.models.User
 
 class UserRepository {
 
@@ -14,26 +17,68 @@ class UserRepository {
 
     val latestMessagesMap = HashMap<String, ChatMessage>()
 
-    fun fetchCurrentUser() {
-//        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-//        ref.addListenerForSingleValueEvent(object: ValueEventListener {
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                //_currentUser.value = p0.getValue(User::class.java)
-//                //Log.d("LatestMessages", "Current user ${cUser.profileImageUrl}")
-//            }
-//
-//            override fun onCancelled(p0: DatabaseError) {
-//                returnError(p0.message)
-//            }
-//        })
-    }
+    suspend fun fetchCurrentUser() : MutableLiveData<User> {
+        val returnValue = MutableLiveData<User>()
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener {
 
-    fun returnError(message: String) : String {
-        return message
+            override fun onDataChange(p0: DataSnapshot) {
+                //currentUser = p0.getValue(User::class.java)
+                //Log.d("LatestMessages", "Current user ${currentUser?.profileImageUrl}")
+                returnValue.value = p0.getValue(User::class.java)
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+
+        return returnValue
     }
 
     fun uid() : String? {
         return uid
+    }
+
+    suspend fun updateProfile(username: String, profileImageUrl: String): MutableLiveData<Any> {
+        val returnValue = MutableLiveData<Any>()
+        val uid = FirebaseAuth.getInstance().uid ?: ""
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        val user = Profile(uid, username, profileImageUrl)
+        ref.setValue(user)
+            .addOnSuccessListener {
+                returnValue.value = true
+            }
+            .addOnFailureListener {
+                returnValue.value = it.message
+            }
+        return returnValue
+    }
+
+    suspend fun fetchUsers(): MutableLiveData<List<User>>? {
+        val users = MutableLiveData<List<User>>()
+
+        val ref = FirebaseDatabase.getInstance().getReference("/users")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener {
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val musers = mutableListOf<User>()
+
+                snapshot.children.forEach {
+                    val user = it.getValue(User::class.java)
+                    if (user != null) {
+                        musers.add(user)
+                    }
+                }
+                users.value = musers
+
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+        return users
     }
 }
