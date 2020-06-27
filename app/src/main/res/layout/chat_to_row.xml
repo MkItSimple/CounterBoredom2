@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@color/transparentBackground">
+
+    <TextView
+        android:id="@+id/textViewToRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_chat_to"
+        android:text="This is my message that will wrap into multipole lines and keep on going"
+        android:textColor="#000"
+        android:textSize="14sp"
+        android:fontFamily="@font/montserrat_regular"
+        android:maxWidth="240dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewToRow" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageViewToRow"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/profile_default"
+        android:background="@color/transparentBackground"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
