@@ -23,6 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 class MessageRepository (val api: Api){
 
@@ -71,8 +72,6 @@ class MessageRepository (val api: Api){
                     val pair = Pair(true, it.message!!)
                     returnValue.value = pair
                 }
-        //val pairValues = Pair(booleanValue, stringValue)
-        //returnValue.value = pairValues
         return returnValue
     }
 
@@ -99,19 +98,6 @@ class MessageRepository (val api: Api){
 
                 val pair = Triple(mChatMessage, mImageMessage!!, mInt)
                 returnValue.value = pair
-//                if (mChatMessage!!.type == MessageType.TEXT){
-//                    val pair = Pair(mChatMessage, mImageMessage)
-//                    //returnValue.value = P
-//                } else {
-//                    val mImageMessage = p0.getValue(ImageMessage::class.java)
-//                    val pair = Pair(mChatMessage, mImageMessage)
-//                }
-////                if (mChatMessage!!.type == MessageType.TEXT) {
-////                    //returnValue.value = mChatMessage
-////                } else {
-////                    val mImageMessage = p0.getValue(ImageMessage::class.java)
-////                    //returnValue.value = mImageMessage
-////                }
             }
 
             override fun onChildRemoved(p0: DataSnapshot) {}
@@ -132,7 +118,6 @@ class MessageRepository (val api: Api){
 
         val imageMessage = ImageMessage(reference.key!!, fileLocation, fromId, toId!!, System.currentTimeMillis() / 1000)
 
-        //Log.d("ImageMessage", "Image Path: " + imageMessage.imagePath + "Image Type:" + imageMessage.type)
 
         // setValue inerted the chat to database . . . then scroll recyclerview to the bottom
         reference.setValue(imageMessage)
@@ -159,15 +144,6 @@ class MessageRepository (val api: Api){
     suspend fun sendNotification(token: String, username: String, text: String): MutableLiveData<Boolean>? {
         val returnValue = MutableLiveData<Boolean>()
 
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl(BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//        val api =
-//            retrofit.create(
-//                Api::class.java
-//            )
-
         val call = api.sendNotification(token, MainActivity.currentUser!!.username, text)
 
         call?.enqueue(object : Callback<ResponseBody?> {
@@ -193,8 +169,40 @@ class MessageRepository (val api: Api){
         return returnValue
     }
 
+    suspend fun listenForLatestMessages(): MutableLiveData<HashMap<String, ChatMessage>>? {
+        val returnValue = MutableLiveData<HashMap<String, ChatMessage>>()
 
-//    fun returnUri() MutableData<Uri>? {
-//        val returnValue = MutableLiveData<Any>()
-//    }
+        val fromId = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId")
+
+        val latestMessagesMap = HashMap<String, ChatMessage>()
+
+        ref.addChildEventListener(object: ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, p1: String?) {
+                val chatMessage = snapshot.getValue(ChatMessage::class.java) ?: return
+                latestMessagesMap[snapshot.key!!] = chatMessage // p0.key belong to the user that we're messaging
+                returnValue.value = latestMessagesMap
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, p1: String?) {
+                val chatMessage = snapshot.getValue(ChatMessage::class.java) ?: return
+                latestMessagesMap[snapshot.key!!] = chatMessage
+                returnValue.value = latestMessagesMap
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+            }
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+
+
+        return returnValue
+
+    }
 }

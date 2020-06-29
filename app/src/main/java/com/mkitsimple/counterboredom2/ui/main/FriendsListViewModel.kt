@@ -19,45 +19,8 @@ class FriendsListViewModel @Inject constructor() : ViewModel() {
 
     private val dbUsers = FirebaseDatabase.getInstance().getReference(NODE_USERS)
 
-//    private val _users = MutableLiveData<List<User>>()
-//    val users: LiveData<List<User>>
-//        get() = _users
-
-//    fun fetchUsers() {
-//
-//        val ref = FirebaseDatabase.getInstance().getReference("/users")
-//        ref.addListenerForSingleValueEvent(object: ValueEventListener {
-//
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                //Log.d(TAG, "DataSnapshot: " + snapshot.getValue())
-////                 val adapter = GroupAdapter<ViewHolder>()
-////                 val uid = FirebaseAuth.getInstance().uid
-//                val musers = mutableListOf<User>()
-//
-//                snapshot.children.forEach {
-//                    //Log.d("NewMessage \n ", it.toString())
-//                    val user = it.getValue(User::class.java)
-//                    if (user != null) {
-//                        musers.add(user)
-//                    }
-//                }
-//                _users.value = musers
-//
-//            }
-//
-//            override fun onCancelled(p0: DatabaseError) {
-//
-//            }
-//        })
-//    }
-
     var users: LiveData<List<User>>? = null
     suspend fun fetchUsers() {
         users = repository.fetchUsers()
     }
-
-//    var isSuccessful: LiveData<Any>? = null
-//    suspend fun updateProfile(username: String, profileImageUrl: String) {
-//        isSuccessful = repository.updateProfile(profileImageUrl, username)
-//    }
 }

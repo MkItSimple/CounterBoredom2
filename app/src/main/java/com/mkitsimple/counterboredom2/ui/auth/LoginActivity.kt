@@ -57,14 +57,4 @@ class LoginActivity : AppCompatActivity() {
             })
         }
     }
-
-//    private fun performPair(){
-//        Coroutines.main {
-//            viewModel.performPair()
-//            viewModel.pairResult?.observe(this, Observer {
-//                if (it.first)
-//                    toast(it.second)
-//            })
-//        }
-//    }
 }

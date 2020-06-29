@@ -18,14 +18,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             //Log.d(TAG," Notification : " + remoteMessage.notification!!.body.toString())
             val title: String = remoteMessage.notification?.title!!
             val body: String = remoteMessage.notification?.body!!
-
-            //Log.d(TAG, " choreyn : $title $body")
             // helper will build and display the notification recieved by this MyFirebaseMessagingService
             helper?.displayNotification(applicationContext, title, body, MainActivity.currentUser)
         }
-
     }
-
-
-
 }

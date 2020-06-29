@@ -16,12 +16,13 @@ import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.User
 import com.mkitsimple.counterboredom2.ui.auth.RegisterActivity
-import com.mkitsimple.counterboredom2.utils.Coroutines
-import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.intentFor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var factory: ViewModelFactory
+    private lateinit var job1: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,22 +49,20 @@ class MainActivity : AppCompatActivity() {
             .newMainComponent().inject(this)
 
         viewModel = ViewModelProviders.of(this, factory)[MainViewModel::class.java]
+        job1 = Job()
 
         toolbar.setTitle("")
         setSupportActionBar(toolbar)
 
         val latestChatsFragment = LatestChatsFragment()
         val friendsFragment = FriendsListFragment()
-        val profileFragment = ProfileFragment()
 
         tab_layout.setupWithViewPager(view_pager)
 
         val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, 1)
         viewPagerAdapter.addFragment(latestChatsFragment, "LATEST CHATS")
         viewPagerAdapter.addFragment(friendsFragment, "FRIENDS LIST")
-        //viewPagerAdapter.addFragment(profileFragment, "PROFILE")
         view_pager.setAdapter(viewPagerAdapter)
-        //view_pager.setCurrentItem(currentFragment!!, true)
 
         verifyUserIsLoggedIn()
         fetchCurrentUser()
@@ -90,8 +90,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private class ViewPagerAdapter(fm: FragmentManager, behavior: Int) :
-            FragmentPagerAdapter(fm, behavior) {
+    private class ViewPagerAdapter(fm: FragmentManager, behavior: Int) : FragmentPagerAdapter(fm, behavior) {
         private val fragments: MutableList<Fragment> = ArrayList()
         private val fragmentTitle: MutableList<String> = ArrayList()
         fun addFragment(fragment: Fragment, title: String) {
@@ -124,9 +123,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchCurrentUser() {
-        Coroutines.main {
+        CoroutineScope(Dispatchers.Main + job1).launch {
             viewModel.fetchCurrentUser()
-            viewModel.fetchCurrentUserResult?.observe(this, Observer {
+            viewModel.fetchCurrentUserResult?.observe(this@MainActivity, Observer {
                 currentUser = it
                 if (currentUser?.profileImageUrl != "null") {
                     Picasso.get().load(currentUser?.profileImageUrl).into(circleImageViewMain)
@@ -138,5 +137,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         fetchCurrentUser()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(::job1.isInitialized) job1.cancel()
     }
 }

@@ -10,16 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
 import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
-import com.mkitsimple.counterboredom2.data.models.MessageType
 import com.mkitsimple.counterboredom2.data.models.User
 import com.mkitsimple.counterboredom2.ui.views.ChatFromItem
 import com.mkitsimple.counterboredom2.ui.views.ChatToItem
 import com.mkitsimple.counterboredom2.ui.views.ImageFromItem
 import com.mkitsimple.counterboredom2.ui.views.ImageToItem
-import com.mkitsimple.counterboredom2.utils.Coroutines
 import com.mkitsimple.counterboredom2.utils.longToast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
@@ -27,16 +24,17 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.custom_toolbar_chatlog.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 class ChatLogActivity : AppCompatActivity() {
 
     companion object {
         val TAG = "ChatLog"
         val USER_KEY = "USER_KEY"
-        //var currentUser: User? = null
     }
 
     val adapter = GroupAdapter<ViewHolder>()
@@ -49,6 +47,10 @@ class ChatLogActivity : AppCompatActivity() {
 
 
     private lateinit var viewModel: ChatLogViewModel
+    private lateinit var job1: Job
+    private lateinit var job2: Job
+    private lateinit var job3: Job
+    private lateinit var job4: Job
 
     @Inject
     lateinit var factory: ViewModelFactory
@@ -61,6 +63,10 @@ class ChatLogActivity : AppCompatActivity() {
                 .newMainComponent().inject(this)
 
         viewModel = ViewModelProviders.of(this, factory)[ChatLogViewModel::class.java]
+        job1 = Job()
+        job2 = Job()
+        job3 = Job()
+        job4 = Job()
 
         recylerViewChatLog.adapter = adapter
 
@@ -79,7 +85,6 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         //setDummyData()
-        //getCurrentUser(uid!!)
         listenForMessages()
 
         // Attemt to send message
@@ -103,10 +108,8 @@ class ChatLogActivity : AppCompatActivity() {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
             // proceed and check what the selected image was....
             Log.d(TAG, "Photo was selected")
-
             selectedPhotoUri = data.data // is the uri . . basically where that image stored in the device
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)  // before we can use selectedImagePath we need to  make it as bitmap
-
             uploadImageToFirebaseStorage()
         }
     }
@@ -114,13 +117,13 @@ class ChatLogActivity : AppCompatActivity() {
     private fun uploadImageToFirebaseStorage() {
         if (selectedPhotoUri == null) return
 
-        Coroutines.main{
+        CoroutineScope(Dispatchers.Main + job1).launch{
             viewModel.uploadImageToFirebaseStorage(selectedPhotoUri!!)
-            viewModel.uploadImageResult?.observe(this, Observer {
+            viewModel.uploadImageResult?.observe(this@ChatLogActivity, Observer {
                 if (it.first) {
                     performSendImageMessage(it.second)
                 } else {
-                    viewModel.uploadImageErrorMessage.observe(this, Observer { uploadImageErrorMessage ->
+                    viewModel.uploadImageErrorMessage.observe(this@ChatLogActivity, Observer { uploadImageErrorMessage ->
                         longToast("Failed to upload image to storage: $uploadImageErrorMessage")
                     })
                 }
@@ -129,17 +132,9 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private fun listenForMessages() {
-        Coroutines.main{
+        CoroutineScope(Dispatchers.Main + job2).launch{
             viewModel.listenForMessages(toUser?.uid)
-            viewModel.listenForMessagesResultChatMessage?.observe(this, Observer {
-                //val chatMessage = it as it.type
-//                if (it!!.type == MessageType.TEXT) {
-//                    it.value = it
-//                } else {
-//                    val mImageMessage = p0.getValue(ImageMessage::class.java)
-//                    _imageMessage.value = mImageMessage
-//                }
-
+            viewModel.listenForMessagesResultChatMessage?.observe(this@ChatLogActivity, Observer {
                 // Check if 1 ChatMessage, if 2 ImageMessage
                 if (it.third == 1){
                     val chatMessage = it.first
@@ -158,33 +153,12 @@ class ChatLogActivity : AppCompatActivity() {
                 }
             })
         }
-
-//        viewModel.listenForMessages(toUser?.uid)
-//        viewModel.chatMessage.observe(this, Observer { chatMessage ->
-//
-//            if (chatMessage.fromId == mAuth.uid) {
-//                //adapter.add(ChatToItem(chatMessage.text, currentUser))
-//                adapter.add(ChatFromItem(chatMessage.text, MainActivity.currentUser!!))
-//            } else {
-//                adapter.add(ChatToItem(chatMessage.text, toUser!!))
-//            }
-//
-//            recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
-//        })
-//
-//        viewModel.imageMessage.observe(this, Observer {imageMessage ->
-//            if (imageMessage.fromId == mAuth.uid) {
-//                adapter.add(ImageToItem(imageMessage!!.imagePath, MainActivity.currentUser!!))
-//            } else {
-//                adapter.add(ImageFromItem(imageMessage!!.imagePath, toUser!!))
-//            }
-//        })
     }
 
     private fun performSendImageMessage(fileLocation: String) {
-        Coroutines.main {
+        CoroutineScope(Dispatchers.Main + job3).launch{
             viewModel.performSendImageMessage(toId, fromId, fileLocation)
-            viewModel.isSuccessful.observe(this, Observer { isSuccessful ->
+            viewModel.isSuccessful.observe(this@ChatLogActivity, Observer { isSuccessful ->
                 if(isSuccessful){
                     chatLogEditText.text.clear()
                     recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
@@ -195,9 +169,9 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun performSendMessage(token: String) {
         val text = chatLogEditText.text.toString()
-        Coroutines.main{
+        CoroutineScope(Dispatchers.Main + job4).launch{
             viewModel.performSendMessage(toId!!, fromId, text)
-            viewModel.isPerformSendMessageSuccessful?.observe(this, Observer {
+            viewModel.isPerformSendMessageSuccessful?.observe(this@ChatLogActivity, Observer {
                 if(it){
                     chatLogEditText.text.clear()
                     recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
@@ -205,40 +179,10 @@ class ChatLogActivity : AppCompatActivity() {
             })
             viewModel.sendNotification(token, MainActivity.currentUser!!.username, text)
         }
+    }
 
-        // send notification
-
-
-//        // send notification
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl(BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//        val api =
-//            retrofit.create(
-//                Api::class.java
-//            )
-//
-//        val call = api.sendNotification(token, MainActivity.currentUser!!.username, text)
-//
-//        call?.enqueue(object : Callback<ResponseBody?> {
-//            override fun onResponse(
-//                call: Call<ResponseBody?>,
-//                response: Response<ResponseBody?>
-//            ) {
-//                try {
-//                    toast(response.body()!!.string())
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//            }
-//
-//            override fun onFailure(
-//                call: Call<ResponseBody?>,
-//                t: Throwable
-//            ) {
-//            }
-//        })
-//        // end  notification
+    override fun onDestroy() {
+        super.onDestroy()
+        if(::job1.isInitialized) job1.cancel()
     }
 }

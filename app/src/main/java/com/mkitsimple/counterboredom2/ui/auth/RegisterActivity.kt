@@ -19,6 +19,7 @@ import com.mkitsimple.counterboredom2.utils.longToast
 import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import kotlinx.android.synthetic.main.activity_register.*
+import kotlinx.coroutines.Job
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
@@ -32,11 +33,11 @@ class RegisterActivity : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private var token: String? = null
-
     private lateinit var viewModel: AuthViewModel
 
     @Inject
     lateinit var factory: ViewModelFactory
+    private lateinit var job1: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +47,7 @@ class RegisterActivity : AppCompatActivity() {
             .newAuthComponent().inject(this)
 
         viewModel = ViewModelProviders.of(this, factory)[AuthViewModel::class.java]
+        job1 = Job()
 
         // generate registration token for this device
         FirebaseInstanceId.getInstance().instanceId
@@ -115,13 +117,6 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-//        viewModel.performRegister(email, password)
-//        viewModel.isRegisterSuccessful.observe(this, Observer {
-//            if (it){
-//                uploadImageToFirebaseStorage()
-//            }
-//        })
-
         Coroutines.main {
             viewModel.performRegister(email, password)
             viewModel.registerResult?.observe(this, Observer {
@@ -179,5 +174,10 @@ class RegisterActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(::job1.isInitialized) job1.cancel()
     }
 }

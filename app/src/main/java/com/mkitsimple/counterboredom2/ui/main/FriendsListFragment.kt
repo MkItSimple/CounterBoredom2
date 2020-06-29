@@ -20,6 +20,10 @@ import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.fragment_friends_list.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class FriendsListFragment : Fragment() {
@@ -34,6 +38,7 @@ class FriendsListFragment : Fragment() {
     @Inject
     lateinit var factory: ViewModelFactory
     val adapter = GroupAdapter<ViewHolder>()
+    private lateinit var job1: Job
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -48,6 +53,7 @@ class FriendsListFragment : Fragment() {
                 .newMainComponent().inject(this)
 
         viewModel = ViewModelProviders.of(this, factory).get(FriendsListViewModel::class.java)
+        job1 = Job()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -57,9 +63,9 @@ class FriendsListFragment : Fragment() {
     }
 
     private fun fetchUsers() {
-        Coroutines.main(){
+        CoroutineScope(Dispatchers.Main + job1).launch{
             viewModel.fetchUsers()
-            viewModel.users?.observe(this, Observer { users ->
+            viewModel.users?.observe(viewLifecycleOwner, Observer { users ->
                 setupRecyclerView(users)
             })
         }
@@ -84,5 +90,10 @@ class FriendsListFragment : Fragment() {
         }
 
         recyclerviewFriendsList.adapter = adapter
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(::job1.isInitialized) job1.cancel()
     }
 }
