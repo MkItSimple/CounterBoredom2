@@ -27,9 +27,9 @@ class NotificationHelper {
             PendingIntent.FLAG_CANCEL_CURRENT // will delete or cancel current notification before creating new one
         )
         val mBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("My notification")
-            .setContentText("Hello World!")
+            .setSmallIcon(R.drawable.ic_camera)
+            .setContentTitle(title)
+            .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
             // Set the intent that will fire when the user taps the notification

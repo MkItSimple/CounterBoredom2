@@ -1,10 +1,7 @@
 package com.mkitsimple.counterboredom2.di.modules
 
 import androidx.lifecycle.ViewModel
-import com.mkitsimple.counterboredom2.ui.main.FriendsListViewModel
-import com.mkitsimple.counterboredom2.ui.main.LatestChatsViewModel
-import com.mkitsimple.counterboredom2.ui.main.MainViewModel
-import com.mkitsimple.counterboredom2.ui.main.ProfileViewModel
+import com.mkitsimple.counterboredom2.ui.main.*
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelKey
 import dagger.Binds
 import dagger.Module
@@ -31,4 +28,9 @@ abstract class MainViewModelModule {
     @IntoMap
     @ViewModelKey(LatestChatsViewModel::class)
     internal abstract fun bindLatestChatsViewModel(viewModel: LatestChatsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ChatLogViewModel::class)
+    internal abstract fun bindChatLogViewModel(viewModel: ChatLogViewModel): ViewModel
 }

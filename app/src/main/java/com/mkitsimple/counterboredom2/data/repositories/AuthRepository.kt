@@ -85,4 +85,10 @@ class AuthRepository {
                 }
         return uploadReturnValue
     }
+
+    suspend fun performPair(): MutableLiveData<Pair<Boolean, String>> {
+        val pairValues = MutableLiveData<Pair<Boolean, String>>()
+        pairValues.value = Pair(true, "choreyn")
+        return pairValues
+    }
 }

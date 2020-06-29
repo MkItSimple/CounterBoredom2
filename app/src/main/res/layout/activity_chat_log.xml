@@ -54,7 +54,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/chatLogSendbuutton"
+            android:id="@+id/chatLogSendbutton"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="10dp"

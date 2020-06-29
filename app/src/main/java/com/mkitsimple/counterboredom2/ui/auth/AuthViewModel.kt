@@ -61,6 +61,11 @@ class AuthViewModel @Inject constructor() : ViewModel(){
         saveUserResult = repository.saveUserToFirebaseDatabase(username, profileImage, token)
     }
 
+    var pairResult: LiveData<Pair<Boolean, String>>? = null
+    suspend fun performPair() {
+        pairResult = repository.performPair()
+    }
+
 //    fun setAny(performTypeAny: MutableLiveData<Any>) {
 //        //_nAny.value = "Hello cho"
 //        Coroutines.main{
