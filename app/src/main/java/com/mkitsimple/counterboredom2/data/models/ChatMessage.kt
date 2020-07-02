@@ -5,6 +5,7 @@ class ChatMessage(
     val text: String,
     override val fromId: String,
     override val toId: String,
+    //override val timestamp: Long,
     override val timestamp: Long,
     override val type: String = MessageType.TEXT
 ) :  Message {

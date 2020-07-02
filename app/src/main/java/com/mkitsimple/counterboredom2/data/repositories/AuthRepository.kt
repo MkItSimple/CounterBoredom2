@@ -15,20 +15,11 @@ class AuthRepository {
 
     val mAuth = FirebaseAuth.getInstance()
 
-    //private val _signInReturnValue = MutableLiveData<Any>()
-
-//    suspend fun performTypeAny() : MutableLiveData<Any> {
-//        val _signInReturnValue = MutableLiveData<Any>()
-//        //delay(10000)
-//        _signInReturnValue.value = "Failed"
-//        return _signInReturnValue
-//    }
-
     suspend fun performLogin(email: String, password: String) : MutableLiveData<Any> {
         val loginReturnValue = MutableLiveData<Any>()
 
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
+                .addOnSuccessListener {
                     loginReturnValue.value = true
                 }
                 .addOnFailureListener {
@@ -41,8 +32,8 @@ class AuthRepository {
     suspend fun performRegister(email: String, password: String): MutableLiveData<Any> {
         val registerReturnValue = MutableLiveData<Any>()
         mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                registerReturnValue.value = it.isSuccessful
+            .addOnSuccessListener {
+                registerReturnValue.value = true
             }
             .addOnFailureListener{
                 registerReturnValue.value = it.message

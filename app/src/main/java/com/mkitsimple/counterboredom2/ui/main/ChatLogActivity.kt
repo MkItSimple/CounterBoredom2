@@ -177,7 +177,8 @@ class ChatLogActivity : AppCompatActivity() {
                     recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
                 }
             })
-            viewModel.sendNotification(token, MainActivity.currentUser!!.username, text)
+            // Send notification to receiver
+            //viewModel.sendNotification(token, MainActivity.currentUser!!.username, text)
         }
     }
 

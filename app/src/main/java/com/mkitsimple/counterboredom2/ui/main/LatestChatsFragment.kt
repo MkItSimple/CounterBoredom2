@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.mkitsimple.counterboredom2.BaseApplication
 
@@ -78,7 +80,7 @@ class LatestChatsFragment : Fragment() {
             viewModel.listenForLatestMessages()
             viewModel.listenForLatestMessagesResult?.observe(viewLifecycleOwner, Observer {
                 latestMessagesMap = it
-                //Log.d(TAG, "latestMessagesMap: "+latestMessagesMap)
+                //Log.d("resultMap", "resultMap: " + resultMap)
                 refreshRecyclerViewMessages()
             })
         }
@@ -86,10 +88,16 @@ class LatestChatsFragment : Fragment() {
 
     private fun refreshRecyclerViewMessages() {
         adapter.clear()
-        latestMessagesMap.values.forEach {
+        val resultMap = latestMessagesMap.entries.sortedByDescending { it.value.timestamp }.associate { it.toPair() }
+        resultMap.values.forEach {
             adapter.add(LatestChatItems(it))
         }
         recyclerviewLatestChats.adapter = adapter
+
+        // remove textView "You currently have no chats" if there is chats
+        if (adapter.itemCount >= 1){
+            textViewNoChats.visibility = View.GONE
+        }
     }
 
     override fun onDestroy() {

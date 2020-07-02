@@ -13,6 +13,8 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.row_latest_chats.view.*
+import java.text.*;
+import java.util.*;
 
 class LatestChatItems (val chatMessage: ChatMessage): Item<ViewHolder>() {
     var chatPartnerUser: User? = null
@@ -37,13 +39,14 @@ class LatestChatItems (val chatMessage: ChatMessage): Item<ViewHolder>() {
                     Picasso.get().load(chatPartnerUser?.profileImageUrl).into(targetImageView)
                 }
 
+                if (chatMessage.fromId != FirebaseAuth.getInstance().uid) {
+                    who = chatPartnerUser?.username
+                }
 
                 if (chatMessage.type == MessageType.TEXT) {
-                    viewHolder.itemView.textViewMessageLatestMessage.text = chatMessage.text
+                    viewHolder.itemView.textViewMessageLatestMessage.text = "$who: " + chatMessage.text
                 } else {
-                    if (chatMessage.fromId != FirebaseAuth.getInstance().uid) {
-                        who = chatPartnerUser?.username
-                    }
+
                     viewHolder.itemView.textViewMessageLatestMessage.text = "$who sent a photo."
                 }
             }

@@ -23,6 +23,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.newTask
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -63,6 +66,10 @@ class MainActivity : AppCompatActivity() {
         viewPagerAdapter.addFragment(latestChatsFragment, "LATEST CHATS")
         viewPagerAdapter.addFragment(friendsFragment, "FRIENDS LIST")
         view_pager.setAdapter(viewPagerAdapter)
+
+        circleImageViewMain.setOnClickListener {
+            startActivity(intentFor<ProfileActivity>())
+        }
 
         verifyUserIsLoggedIn()
         fetchCurrentUser()

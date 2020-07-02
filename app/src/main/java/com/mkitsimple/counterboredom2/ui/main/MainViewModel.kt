@@ -33,24 +33,15 @@ class MainViewModel @Inject constructor() : ViewModel() {
     private val _isUpdated = MutableLiveData<Task<Void>>()
     val isUpdated: LiveData<Task<Void>> get() = _isUpdated
 
-    private lateinit var job: Job
-
     var fetchCurrentUserResult: LiveData<User>? = null
     suspend fun fetchCurrentUser() {
         fetchCurrentUserResult = repository.fetchCurrentUser()
     }
 
-//    var saveUserResult: LiveData<Any>? = null
-//    suspend fun saveUserToFirebaseDatabase(username: String, profileImage: String, token: String) {
-//        saveUserResult = repository.saveUserToFirebaseDatabase(username, profileImage, token)
-//    }
-
     fun updateUser(profileImageUrl: String, username: String) {
         val uid = FirebaseAuth.getInstance().uid ?: ""
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-
         val user = Profile(uid, username, profileImageUrl)
-
         _isProfileUpdated.value = ref.setValue(user)
     }
 

@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-class Profile(val uid: String, val username: String, val profileImageUrl: String):
+class Profile(val uid: String, val profileImageUrl: String, val username: String):
     Parcelable {
     constructor() : this("", "", "")
 }

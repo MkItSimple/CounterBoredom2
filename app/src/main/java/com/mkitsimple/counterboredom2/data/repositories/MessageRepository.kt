@@ -34,7 +34,7 @@ class MessageRepository (val api: Api){
 
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000)
+        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis())
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 returnValue.value = true
@@ -174,6 +174,7 @@ class MessageRepository (val api: Api){
 
         val fromId = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId")
+            //.orderByChild("key/username")
 
         val latestMessagesMap = HashMap<String, ChatMessage>()
 

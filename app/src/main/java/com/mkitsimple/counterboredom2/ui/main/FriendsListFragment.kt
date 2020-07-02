@@ -72,6 +72,8 @@ class FriendsListFragment : Fragment() {
     }
 
     private fun setupRecyclerView(users: List<User>) {
+        val mUsers = users
+
         for (user in users){
             //Log.d(TAG, "User: "+ user.username)
             val uid = FirebaseAuth.getInstance().uid

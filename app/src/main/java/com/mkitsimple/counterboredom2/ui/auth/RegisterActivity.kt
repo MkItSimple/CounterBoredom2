@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.animation.AnimationUtils
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.auth.FirebaseAuth
@@ -47,15 +48,15 @@ class RegisterActivity : AppCompatActivity() {
             .newAuthComponent().inject(this)
 
         viewModel = ViewModelProviders.of(this, factory)[AuthViewModel::class.java]
+
         job1 = Job()
 
+        initAnimation()
         // generate registration token for this device
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     token = task.result!!.token
-                    //saveToken(token)
-                    Log.d(TAG, token!!)
                 }
             }
 
@@ -78,6 +79,19 @@ class RegisterActivity : AppCompatActivity() {
         buttonRegister.setOnClickListener {
             performRegister()
         }
+    }
+
+    private fun initAnimation() {
+        val fromtopbottom = AnimationUtils.loadAnimation(this, R.anim.fromtopbottom)
+        val fromtopbottomtwo = AnimationUtils.loadAnimation(this, R.anim.fromtopbottomtwo)
+        val smalltobig = AnimationUtils.loadAnimation(this, R.anim.smalltobig)
+
+        buttonSelectPhoto.startAnimation(smalltobig)
+        editTextUsername.startAnimation(fromtopbottom)
+        editTextEmail.startAnimation(fromtopbottom)
+        editTextPassword.startAnimation(fromtopbottom)
+        buttonRegister.startAnimation(fromtopbottomtwo)
+        textViewAlreadyHaveAccount.startAnimation(fromtopbottomtwo)
     }
 
     var selectedPhotoUri: Uri? = null
@@ -103,17 +117,17 @@ class RegisterActivity : AppCompatActivity() {
         val password = editTextPassword.text.toString()
 
         if (username.isEmpty()) {
-            toast("Please fill out username")
+            longToast("Please fill out username")
             return
         }
 
         if (email.isEmpty()) {
-            toast("Please fill out email")
+            longToast("Please fill out email")
             return
         }
 
         if (password.isEmpty()) {
-            toast("Please fill out password")
+            longToast("Please fill out password")
             return
         }
 
@@ -123,7 +137,7 @@ class RegisterActivity : AppCompatActivity() {
                 if (it == true) {
                     uploadImageToFirebaseStorage()
                 } else {
-                    longToast("Failed to create user: ${it}")
+                    longToast("${it}")
                 }
             })
         }

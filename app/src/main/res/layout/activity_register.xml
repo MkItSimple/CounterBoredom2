@@ -29,7 +29,6 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:fontFamily="@font/montserrat_regular"
-        android:src="@drawable/pi"
         android:text="You have 2 unread messages"
         android:textColor="#454c55"
         android:textSize="14sp"

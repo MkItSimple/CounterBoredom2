@@ -1,14 +1,19 @@
 package com.mkitsimple.counterboredom2.data.repositories
 
+import android.net.Uri
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.mkitsimple.counterboredom2.data.models.ChatMessage
 import com.mkitsimple.counterboredom2.data.models.Profile
 import com.mkitsimple.counterboredom2.data.models.User
+import java.util.*
+import kotlin.collections.HashMap
 
 class UserRepository {
 
@@ -56,10 +61,26 @@ class UserRepository {
         return returnValue
     }
 
+    suspend fun updateProfileWithImage(username: String, profileImageUrl: String): MutableLiveData<Any> {
+        val returnValue = MutableLiveData<Any>()
+        val uid = FirebaseAuth.getInstance().uid ?: ""
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        val user = Profile(uid, username, profileImageUrl)
+        ref.setValue(user)
+            .addOnSuccessListener {
+                returnValue.value = true
+            }
+            .addOnFailureListener {
+                returnValue.value = it.message
+            }
+        return returnValue
+    }
+
     suspend fun fetchUsers(): MutableLiveData<List<User>>? {
         val users = MutableLiveData<List<User>>()
 
         val ref = FirebaseDatabase.getInstance().getReference("/users")
+            .orderByChild("username")
         ref.addListenerForSingleValueEvent(object: ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -80,5 +101,28 @@ class UserRepository {
             }
         })
         return users
+    }
+
+    suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri): MutableLiveData<Pair<Boolean, String>>? {
+        val returnValue = MutableLiveData<Pair<Boolean, String>>()
+
+        val filename = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+
+        ref.putFile(selectedPhotoUri)
+                .addOnSuccessListener {
+                    //Log.d(RegisterActivity.TAG, "Successfully uploaded image: ${it.metadata?.path}")
+
+                    ref.downloadUrl.addOnSuccessListener {
+                        val pair = Pair(true, it.toString())
+                        returnValue.value = pair
+                    }
+                }
+                .addOnFailureListener {
+                    val pair = Pair(true, it.message!!)
+                    returnValue.value = pair
+                }
+
+        return returnValue
     }
 }

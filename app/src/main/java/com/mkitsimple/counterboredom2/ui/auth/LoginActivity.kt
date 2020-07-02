@@ -1,7 +1,9 @@
 package com.mkitsimple.counterboredom2.ui.auth
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AnimationUtils
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mkitsimple.counterboredom2.BaseApplication
@@ -33,8 +35,25 @@ class LoginActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(this, factory)[AuthViewModel::class.java]
 
+        initAnimation()
+
         buttonLogin.setOnClickListener { performLogin() }
-        textViewBackToRegister.setOnClickListener{ finish() }
+        textViewBackToRegister.setOnClickListener{
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun initAnimation() {
+        val fromtopbottom = AnimationUtils.loadAnimation(this, R.anim.fromtopbottom)
+        val fromtopbottomtwo = AnimationUtils.loadAnimation(this, R.anim.fromtopbottomtwo)
+        val smalltobig = AnimationUtils.loadAnimation(this, R.anim.smalltobig)
+
+        imageViewLogo.startAnimation(smalltobig)
+        editTextEmail.startAnimation(fromtopbottom)
+        editTextPassword.startAnimation(fromtopbottom)
+        buttonLogin.startAnimation(fromtopbottomtwo)
+        textViewBackToRegister.startAnimation(fromtopbottomtwo)
     }
 
     private fun performLogin() {
@@ -51,8 +70,9 @@ class LoginActivity : AppCompatActivity() {
             viewModel.loginResult?.observe(this, Observer {
                 if (it == true) {
                     startActivity(intentFor<MainActivity>().clearTask().newTask())
+                    //longToast(it.toString())
                 } else {
-                    longToast("Failed to log in: ${it}")
+                    longToast(it.toString())
                 }
             })
         }

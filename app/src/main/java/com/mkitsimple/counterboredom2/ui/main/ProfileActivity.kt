@@ -16,9 +16,16 @@ import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.User
 import com.mkitsimple.counterboredom2.ui.auth.RegisterActivity
 import com.mkitsimple.counterboredom2.utils.Coroutines
+import com.mkitsimple.counterboredom2.utils.longToast
+import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_profile.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -30,7 +37,9 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: ProfileViewModel
-    private var pictureChanged = false
+    private lateinit var job1: Job
+    private lateinit var job2: Job
+    private lateinit var job3: Job
 
     @Inject
     lateinit var factory: ViewModelFactory
@@ -49,6 +58,7 @@ class ProfileActivity : AppCompatActivity() {
             Picasso.get().load(MainActivity.currentUser?.profileImageUrl)
                     .into(circleImageViewProfile)
         }
+
         editTextProfile.setText(MainActivity.currentUser!!.username)
 
         circleImageViewProfile.setOnClickListener {
@@ -57,6 +67,7 @@ class ProfileActivity : AppCompatActivity() {
             startActivityForResult(intent, 0)
         }
 
+
         buttonSaveChanges.setOnClickListener {
             uploadImageToFirebaseStorage()
         }
@@ -64,6 +75,13 @@ class ProfileActivity : AppCompatActivity() {
         profileBackArrow.setOnClickListener {
             finish()
         }
+        initJobs()
+    }
+
+    private fun initJobs() {
+        job1 = Job()
+        job2 = Job()
+        job3 = Job()
     }
 
     var selectedPhotoUri: Uri? = null
@@ -82,58 +100,83 @@ class ProfileActivity : AppCompatActivity() {
 
             circleImageViewProfile.setImageBitmap(bitmap)
             //buttonSelectPhotoProfile.alpha = 0f
-
-            pictureChanged = true
         }
     }
 
     private fun uploadImageToFirebaseStorage() {
-        if (selectedPhotoUri == null) return
+        val username = editTextProfile.text.toString()
 
-        val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+        if(username.isEmpty()){
+            longToast("Please fill out username")
+            return
+        }
 
-        ref.putFile(selectedPhotoUri!!)
-                .addOnSuccessListener {
-                    Log.d(RegisterActivity.TAG, "Successfully uploaded image: ${it.metadata?.path}")
+        if(username.length < 2){
+            longToast("Username must be more than 2 characters")
+            return
+        }
 
-                    ref.downloadUrl.addOnSuccessListener {
-                        Log.d(RegisterActivity.TAG, "File Location: $it")
-                        //Picasso.get().load(it).into(circleImageViewMain)
-                        updateProfile(it.toString())
+        if (username.length > 20) {
+            longToast("Username should not be more than 20 characters")
+            return
+        }
+
+        if (username == MainActivity.currentUser!!.username && selectedPhotoUri == null) {
+            longToast("There is no changes has been made")
+            return
+        }
+
+        CoroutineScope(Dispatchers.Main + job1).launch{
+            if (selectedPhotoUri == null) {
+                updateProfile()
+            } else {
+                viewModel.uploadImageToFirebaseStorage(selectedPhotoUri!!)
+                viewModel.isUploadSuccessful?.observe(this@ProfileActivity, androidx.lifecycle.Observer {
+                    if (it.first) {
+                        updateProfileWithImage(it.second)
                     }
-                }
-                .addOnFailureListener {
-                    Log.d(RegisterActivity.TAG, "Failed to upload image to storage: ${it.message}")
-                }
+                })
+            }
+        }
     }
 
-    private fun updateProfile(profileImageUrl: String) {
+    private fun updateProfile() {
 
-        Coroutines.main{
-            viewModel.updateProfile(profileImageUrl, editTextProfile.text.toString())
-            viewModel.isSuccessful?.observe(this, androidx.lifecycle.Observer {
-                if(it == true){
-                    Toast.makeText(this, "Profile successfully updated!", Toast.LENGTH_LONG).show()
-                    circleImageViewProfile.setImageBitmap(bitmap)
+        CoroutineScope(Dispatchers.Main + job2).launch{
+            viewModel.updateProfile(editTextProfile.text.toString(), MainActivity.currentUser!!.profileImageUrl)
+            viewModel.isSuccessful?.observe(this@ProfileActivity, androidx.lifecycle.Observer {
+                if (it == true) {
+                    Toast.makeText(applicationContext, "Profile successfully updated!", Toast.LENGTH_LONG).show()
+                    updateCircleImageViewProfile()
+
                 }
             })
         }
+    }
 
-//        val uid = FirebaseAuth.getInstance().uid ?: ""
-//        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-//
-//        val user = Profile(uid, editTextProfile.text.toString(), profileImageUrl)
-//
-//        ref.setValue(user)
-//            .addOnSuccessListener {
-//                //Log.d(RegisterActivity.TAG, "Profile successfully updated!")
-//                Toast.makeText(this, "Profile successfully updated!", Toast.LENGTH_LONG).show()
-//                //circleImageViewMain.setImageBitmap(bitmap)
-//            }
-//            .addOnFailureListener {
-//                //Log.d(RegisterActivity.TAG, "Failed to update value to database: ${it.message}")
-//                Toast.makeText(this, "Profile successfully updated!", Toast.LENGTH_LONG).show()
-//            }
+    private fun updateProfileWithImage(profileImageUrl: String) {
+
+        CoroutineScope(Dispatchers.Main + job3).launch{
+            viewModel.updateProfileWithImage(editTextProfile.text.toString(), profileImageUrl)
+            viewModel.isSuccessful2?.observe(this@ProfileActivity, androidx.lifecycle.Observer {
+                if(it == true){
+                    Toast.makeText(applicationContext, "Profile successfully updated!", Toast.LENGTH_LONG).show()
+                    updateCircleImageViewProfile()
+                }
+            })
+        }
+    }
+
+    private fun updateCircleImageViewProfile(){
+        if (selectedPhotoUri != null){
+            circleImageViewProfile.setImageBitmap(bitmap)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(::job1.isInitialized) job1.cancel()
+        if(::job2.isInitialized) job2.cancel()
+        if(::job3.isInitialized) job3.cancel()
     }
 }
