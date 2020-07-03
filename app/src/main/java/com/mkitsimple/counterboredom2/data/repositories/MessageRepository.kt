@@ -30,11 +30,13 @@ class MessageRepository (val api: Api){
     suspend fun performSendMessage(toId: String, fromId: String, text: String): MutableLiveData<Boolean>? {
         val returnValue = MutableLiveData<Boolean>()
 
+        // senders copy
         val reference = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
 
+        // recievers copy
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis())
+        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis(), false)
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 returnValue.value = true
@@ -46,9 +48,11 @@ class MessageRepository (val api: Api){
 
         toReference.setValue(chatMessage)
 
+        // senders chat copy
         val latestMessageRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
         latestMessageRef.setValue(chatMessage)
 
+        // recievers chat copy
         val latestMessageToRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
         latestMessageToRef.setValue(chatMessage)
 
@@ -116,7 +120,7 @@ class MessageRepository (val api: Api){
         // chat copy for reciever
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val imageMessage = ImageMessage(reference.key!!, fileLocation, fromId, toId!!, System.currentTimeMillis() / 1000)
+        val imageMessage = ImageMessage(reference.key!!, fileLocation, fromId, toId!!, System.currentTimeMillis(), false)
 
 
         // setValue inerted the chat to database . . . then scroll recyclerview to the bottom

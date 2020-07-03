@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -32,7 +33,7 @@
 
     <TextView
         android:id="@+id/textViewMessageLatestMessage"
-        android:layout_width="270dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:maxHeight="40dp"
         android:layout_marginLeft="10dp"
@@ -43,5 +44,16 @@
         android:background="@color/transparentBackground"
         app:layout_constraintStart_toEndOf="@+id/circleImageViewLatestChats"
         app:layout_constraintTop_toBottomOf="@+id/textViewUsernameLatestChats"/>
+
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:fontFamily="@font/montserrat_medium"-->
+<!--        android:text="Jul 23 2020"-->
+<!--        android:textColor="@color/colorTextBlackLight"-->
+<!--        android:textSize="14sp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/textViewUsernameLatestChats"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

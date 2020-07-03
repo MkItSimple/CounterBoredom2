@@ -6,7 +6,9 @@ class ImageMessage(
     override val fromId: String,
     override val toId: String,
     override val timestamp: Long,
+    override val seen: Boolean,
     override val type: String = MessageType.IMAGE
+
 ) : Message {
-    constructor() : this("", "", "", "", -1, "")
+    constructor() : this("", "", "", "", -1,false,"")
 }

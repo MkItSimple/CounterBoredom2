@@ -4,4 +4,5 @@
     <string name="logout">Logout</string>
     <string name="my_account">My Account</string>
     <string name="you_currently_have_no_chats">You currently have no chats</string>
+    <string name="lorem">This is my message that will wrap into multipole lines and keep on going multipole lines and keep on going multipole lines and keep on going multipole lines and keep on going</string>
 </resources>

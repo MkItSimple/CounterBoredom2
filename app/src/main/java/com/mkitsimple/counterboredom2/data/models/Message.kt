@@ -10,5 +10,6 @@ interface Message {
     val fromId: String
     val toId: String
     val timestamp: Long
+    val seen: Boolean
     val type: String
 }

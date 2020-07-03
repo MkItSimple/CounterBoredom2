@@ -18,12 +18,14 @@ import com.mkitsimple.counterboredom2.ui.views.ChatToItem
 import com.mkitsimple.counterboredom2.ui.views.ImageFromItem
 import com.mkitsimple.counterboredom2.ui.views.ImageToItem
 import com.mkitsimple.counterboredom2.utils.longToast
+import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.custom_toolbar_chatlog.*
+import kotlinx.android.synthetic.main.image_to_row.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -87,6 +89,11 @@ class ChatLogActivity : AppCompatActivity() {
         //setDummyData()
         listenForMessages()
 
+//        imageview_to_row.setOnLongClickListener{
+//            toast("long click")
+//            return@setOnLongClickListener true
+//        }
+
         // Attemt to send message
         chatLogSendbutton.setOnClickListener {
             performSendMessage(token!!)
@@ -139,16 +146,16 @@ class ChatLogActivity : AppCompatActivity() {
                 if (it.third == 1){
                     val chatMessage = it.first
                     if (chatMessage.fromId == mAuth.uid) {
-                        adapter.add(ChatFromItem(chatMessage.text, MainActivity.currentUser!!))
+                        adapter.add(ChatFromItem(chatMessage, MainActivity.currentUser!!))
                     } else {
-                        adapter.add(ChatToItem(chatMessage.text, toUser!!))
+                        adapter.add(ChatToItem(chatMessage, toUser!!))
                     }
                 } else {
                     val imageMessage = it.second
                     if (imageMessage.fromId == mAuth.uid) {
-                        adapter.add(ImageToItem(imageMessage.imagePath, MainActivity.currentUser!!))
+                        adapter.add(ImageToItem(imageMessage, MainActivity.currentUser!!))
                     } else {
-                        adapter.add(ImageFromItem(imageMessage.imagePath, toUser!!))
+                        adapter.add(ImageFromItem(imageMessage, toUser!!))
                     }
                 }
             })
