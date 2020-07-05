@@ -14,7 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".ui.main.SplashActivity"></activity>
+        <activity android:name=".ui.main.DownloadActivity">
+
+        </activity>
+        <activity android:name=".ui.main.SplashActivity" />
         <activity android:name=".ui.main.ChatLogActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -26,7 +29,7 @@
                 android:value=".ui.main.MainActivity" />
         </activity>
         <activity android:name=".ui.auth.RegisterActivity" />
-        <activity android:name=".ui.auth.LoginActivity"></activity>
+        <activity android:name=".ui.auth.LoginActivity" />
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

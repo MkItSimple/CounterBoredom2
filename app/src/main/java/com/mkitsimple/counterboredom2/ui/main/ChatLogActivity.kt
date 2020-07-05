@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -18,14 +17,12 @@ import com.mkitsimple.counterboredom2.ui.views.ChatToItem
 import com.mkitsimple.counterboredom2.ui.views.ImageFromItem
 import com.mkitsimple.counterboredom2.ui.views.ImageToItem
 import com.mkitsimple.counterboredom2.utils.longToast
-import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.custom_toolbar_chatlog.*
-import kotlinx.android.synthetic.main.image_to_row.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -94,9 +91,17 @@ class ChatLogActivity : AppCompatActivity() {
 //            return@setOnLongClickListener true
 //        }
 
+//        chatLogEditText.setOnClickListener {
+//            MyDialogBottomSheet().show(
+//                supportFragmentManager,
+//                ""
+//            )
+//        }
+
         // Attemt to send message
         chatLogSendbutton.setOnClickListener {
-            performSendMessage(token!!)
+            //performSendMessage(token!!)
+            performSendMessage()
         }
 
         // Attempt to send image message
@@ -114,9 +119,11 @@ class ChatLogActivity : AppCompatActivity() {
 
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
             // proceed and check what the selected image was....
-            Log.d(TAG, "Photo was selected")
+            //Log.d(TAG, "Photo was selected")
+
             selectedPhotoUri = data.data // is the uri . . basically where that image stored in the device
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)  // before we can use selectedImagePath we need to  make it as bitmap
+            Log.d("selectedPhotoUri", selectedPhotoUri.toString())
+            //val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)  // before we can use selectedImagePath we need to  make it as bitmap
             uploadImageToFirebaseStorage()
         }
     }
@@ -128,7 +135,7 @@ class ChatLogActivity : AppCompatActivity() {
             viewModel.uploadImageToFirebaseStorage(selectedPhotoUri!!)
             viewModel.uploadImageResult?.observe(this@ChatLogActivity, Observer {
                 if (it.first) {
-                    performSendImageMessage(it.second)
+                    performSendImageMessage(it.second, it.third)
                 } else {
                     viewModel.uploadImageErrorMessage.observe(this@ChatLogActivity, Observer { uploadImageErrorMessage ->
                         longToast("Failed to upload image to storage: $uploadImageErrorMessage")
@@ -155,16 +162,16 @@ class ChatLogActivity : AppCompatActivity() {
                     if (imageMessage.fromId == mAuth.uid) {
                         adapter.add(ImageToItem(imageMessage, MainActivity.currentUser!!))
                     } else {
-                        adapter.add(ImageFromItem(imageMessage, toUser!!))
+                        adapter.add(ImageFromItem(imageMessage, toUser!!, supportFragmentManager))
                     }
                 }
             })
         }
     }
 
-    private fun performSendImageMessage(fileLocation: String) {
+    private fun performSendImageMessage(fileLocation: String, filename: String) {
         CoroutineScope(Dispatchers.Main + job3).launch{
-            viewModel.performSendImageMessage(toId, fromId, fileLocation)
+            viewModel.performSendImageMessage(toId, fromId, fileLocation, filename)
             viewModel.isSuccessful.observe(this@ChatLogActivity, Observer { isSuccessful ->
                 if(isSuccessful){
                     chatLogEditText.text.clear()
@@ -174,7 +181,8 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    private fun performSendMessage(token: String) {
+    //private fun performSendMessage(token: String) {
+    private fun performSendMessage() {
         val text = chatLogEditText.text.toString()
         CoroutineScope(Dispatchers.Main + job4).launch{
             viewModel.performSendMessage(toId!!, fromId, text)

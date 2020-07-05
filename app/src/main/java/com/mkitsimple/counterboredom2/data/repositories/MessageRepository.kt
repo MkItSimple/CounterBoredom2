@@ -13,16 +13,12 @@ import com.mkitsimple.counterboredom2.data.models.ImageMessage
 import com.mkitsimple.counterboredom2.data.models.MessageType
 import com.mkitsimple.counterboredom2.data.network.Api
 import com.mkitsimple.counterboredom2.ui.main.MainActivity
-import com.mkitsimple.counterboredom2.utils.BASE_URL
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
-import javax.inject.Inject
 import kotlin.collections.HashMap
 
 class MessageRepository (val api: Api){
@@ -36,7 +32,7 @@ class MessageRepository (val api: Api){
         // recievers copy
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis(), false)
+        val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis(), "")
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 returnValue.value = true
@@ -59,8 +55,8 @@ class MessageRepository (val api: Api){
         return returnValue
     }
 
-    suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri): MutableLiveData<Pair<Boolean, String>>? {
-        val returnValue = MutableLiveData<Pair<Boolean, String>>()
+    suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri): MutableLiveData<Triple<Boolean, String, String>>? {
+        val returnValue = MutableLiveData<Triple<Boolean, String, String>>()
 
         val filename = UUID.randomUUID().toString()
         val ref = FirebaseStorage.getInstance().getReference("/messages/$filename")
@@ -68,13 +64,13 @@ class MessageRepository (val api: Api){
         ref.putFile(selectedPhotoUri)
                 .addOnSuccessListener {
                     ref.downloadUrl.addOnSuccessListener {
-                        val pair = Pair(true, it.toString())
-                        returnValue.value = pair
+                        val triple = Triple(true, it.toString(), filename)
+                        returnValue.value = triple
                     }
                 }
                 .addOnFailureListener {
-                    val pair = Pair(true, it.message!!)
-                    returnValue.value = pair
+                    val triple = Triple(true, it.message!!, filename)
+                    returnValue.value = triple
                 }
         return returnValue
     }
@@ -111,7 +107,7 @@ class MessageRepository (val api: Api){
         return returnValue
     }
 
-    suspend fun performSendImageMessage(toId: String?, fromId: String, fileLocation: String): MutableLiveData<Boolean>? {
+    suspend fun performSendImageMessage(toId: String?, fromId: String, fileLocation: String, filename: String): MutableLiveData<Boolean>? {
         val returnValue = MutableLiveData<Boolean>()
 
         // chat copy for sender
@@ -120,7 +116,7 @@ class MessageRepository (val api: Api){
         // chat copy for reciever
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val imageMessage = ImageMessage(reference.key!!, fileLocation, fromId, toId!!, System.currentTimeMillis(), false)
+        val imageMessage = ImageMessage(reference.key!!, fileLocation, fromId, toId!!, System.currentTimeMillis(), filename)
 
 
         // setValue inerted the chat to database . . . then scroll recyclerview to the bottom
@@ -145,33 +141,33 @@ class MessageRepository (val api: Api){
         return returnValue
     }
 
-    suspend fun sendNotification(token: String, username: String, text: String): MutableLiveData<Boolean>? {
-        val returnValue = MutableLiveData<Boolean>()
-
-        val call = api.sendNotification(token, MainActivity.currentUser!!.username, text)
-
-        call?.enqueue(object : Callback<ResponseBody?> {
-            override fun onResponse(
-                    call: Call<ResponseBody?>,
-                    response: Response<ResponseBody?>
-            ) {
-                try {
-                    returnValue.value = true
-                    //toast(response.body()!!.string())
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-
-            override fun onFailure(
-                call: Call<ResponseBody?>,
-                t: Throwable
-            ) {
-            }
-        })
-
-        return returnValue
-    }
+//    suspend fun sendNotification(token: String, username: String, text: String): MutableLiveData<Boolean>? {
+//        val returnValue = MutableLiveData<Boolean>()
+//
+////        val call = api.sendNotification(token, username, text)
+////
+////        call?.enqueue(object : Callback<ResponseBody?> {
+////            override fun onResponse(
+////                    call: Call<ResponseBody?>,
+////                    response: Response<ResponseBody?>
+////            ) {
+////                try {
+////                    returnValue.value = true
+////                    //toast(response.body()!!.string())
+////                } catch (e: IOException) {
+////                    e.printStackTrace()
+////                }
+////            }
+////
+////            override fun onFailure(
+////                call: Call<ResponseBody?>,
+////                t: Throwable
+////            ) {
+////            }
+////        })
+//
+//        return returnValue
+//    }
 
     suspend fun listenForLatestMessages(): MutableLiveData<HashMap<String, ChatMessage>>? {
         val returnValue = MutableLiveData<HashMap<String, ChatMessage>>()

@@ -3,9 +3,12 @@ package com.mkitsimple.counterboredom2.ui.views
 import android.annotation.SuppressLint
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.ImageMessage
 import com.mkitsimple.counterboredom2.data.models.User
+import com.mkitsimple.counterboredom2.ui.main.ChatLogActivity
+import com.mkitsimple.counterboredom2.ui.main.MyDialogBottomSheet
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -16,8 +19,18 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.*
 
-class ImageFromItem(val image: ImageMessage, val user: User) : Item<ViewHolder>() {
+
+class ImageFromItem(
+    val image: ImageMessage,
+    val user: User,
+    val supportFragmentManager: FragmentManager
+) : Item<ViewHolder>() {
+
+    private var myContext: ChatLogActivity? = null
+    val filename: String = image.filename
+
     override fun bind(viewHolder: ViewHolder, position: Int) {
+
         //val imageUri = image
         val chatTimestamp = image.timestamp
         val mWhen = getWhen(chatTimestamp)
@@ -30,19 +43,38 @@ class ImageFromItem(val image: ImageMessage, val user: User) : Item<ViewHolder>(
         val targetImageView = viewHolder.itemView.imageview_chat_from_row
         Picasso.get().load(uri).into(targetImageView)
 
+        imageviewFromRow.setOnClickListener {
+            Toast.makeText(it.context, ""+image.filename, Toast.LENGTH_LONG).show()
+        }
+
         imageviewFromRow.setOnLongClickListener {
-            showToast(it)
+            //download(it, uri)
+            MyDialogBottomSheet(filename).show(
+                supportFragmentManager,
+                ""
+            )
             return@setOnLongClickListener true
         }
     }
 
-    private fun showToast(it: View) {
-        Toast.makeText(it.context, "Long click", Toast.LENGTH_LONG).show()
+    private fun download(it: View, uri: String) {
+        Toast.makeText(it.context, "ImageFromItem Long clicked $uri", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showBottomSheet(it: View) {
+
     }
 
     override fun getLayout(): Int {
         return R.layout.image_from_row
     }
+
+//    override fun bind(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+//        super.bind(holder, position, payloads)
+//        holder.itemView.imageViewFromRow.setOnClickListener {
+//
+//        }
+//    }
 
     @SuppressLint("NewApi")
     fun getWhen(chatTimestamp: Long): String{

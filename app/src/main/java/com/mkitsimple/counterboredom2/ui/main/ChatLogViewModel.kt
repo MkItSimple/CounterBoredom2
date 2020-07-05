@@ -10,7 +10,6 @@ import com.mkitsimple.counterboredom2.data.models.ImageMessage
 import com.mkitsimple.counterboredom2.data.models.User
 import com.mkitsimple.counterboredom2.data.repositories.MessageRepository
 import com.mkitsimple.counterboredom2.utils.NODE_USERS
-import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 class ChatLogViewModel @Inject constructor() : ViewModel() {
@@ -64,10 +63,15 @@ class ChatLogViewModel @Inject constructor() : ViewModel() {
     }
 
     var isPerformSendImageMessage: LiveData<Boolean>? = null
-    suspend fun performSendImageMessage(toId: String?, fromId: String?, fileLocation: String) {
+    suspend fun performSendImageMessage(
+        toId: String?,
+        fromId: String?,
+        fileLocation: String,
+        filename: String
+    ) {
         if (fromId == null) return
 
-        isPerformSendImageMessage = repository.performSendImageMessage(toId, fromId, fileLocation)
+        isPerformSendImageMessage = repository.performSendImageMessage(toId, fromId, fileLocation, filename)
     }
 
     // Send Image
@@ -83,7 +87,7 @@ class ChatLogViewModel @Inject constructor() : ViewModel() {
     val uploadImageErrorMessage: LiveData<String>
         get() = _uploadImageErrorMessage
 
-    var uploadImageResult: LiveData<Pair<Boolean, String>>? = null
+    var uploadImageResult: LiveData<Triple<Boolean, String, String>>? = null
     suspend fun uploadImageToFirebaseStorage(selectedPhotoUri: Uri) {
         uploadImageResult = repository.uploadImageToFirebaseStorage(selectedPhotoUri)
     }
@@ -92,10 +96,10 @@ class ChatLogViewModel @Inject constructor() : ViewModel() {
     private val _isNotificationSuccessful = MutableLiveData<Boolean>()
     val isNotificationSuccessful: LiveData<Boolean> get() = _isNotificationSuccessful
 
-    var isSendNotificationSuccessful: LiveData<Boolean>? = null
-    suspend fun sendNotification(token: String, username: String, text: String) {
-        isSendNotificationSuccessful = repository.sendNotification(token, username, text)
-    }
+//    var isSendNotificationSuccessful: LiveData<Boolean>? = null
+//    suspend fun sendNotification(token: String, username: String, text: String) {
+//        isSendNotificationSuccessful = repository.sendNotification(token, username, text)
+//    }
 
 //    override fun onCleared() {
 //        super.onCleared()
