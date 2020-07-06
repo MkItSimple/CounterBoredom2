@@ -14,9 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".ui.main.DownloadActivity">
-
-        </activity>
+        <activity android:name=".ui.main.ViewImageActivity"></activity>
+        <activity android:name=".ui.main.DownloadActivity"></activity>
         <activity android:name=".ui.main.SplashActivity" />
         <activity android:name=".ui.main.ChatLogActivity">
             <meta-data

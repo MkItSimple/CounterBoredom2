@@ -10,23 +10,18 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
-import com.google.firebase.storage.FirebaseStorage
 import com.mkitsimple.counterboredom2.BaseApplication
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.User
 import com.mkitsimple.counterboredom2.ui.auth.RegisterActivity
-import com.mkitsimple.counterboredom2.utils.Coroutines
 import com.mkitsimple.counterboredom2.utils.longToast
-import com.mkitsimple.counterboredom2.utils.toast
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 class ProfileActivity : AppCompatActivity() {
@@ -143,7 +138,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun updateProfile() {
 
         CoroutineScope(Dispatchers.Main + job2).launch{
-            viewModel.updateProfile(editTextProfile.text.toString(), MainActivity.currentUser!!.profileImageUrl)
+            viewModel.updateProfile(editTextProfile.text.toString(), MainActivity.currentUser)
             viewModel.isSuccessful?.observe(this@ProfileActivity, androidx.lifecycle.Observer {
                 if (it == true) {
                     Toast.makeText(applicationContext, "Profile successfully updated!", Toast.LENGTH_LONG).show()
@@ -157,7 +152,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun updateProfileWithImage(profileImageUrl: String) {
 
         CoroutineScope(Dispatchers.Main + job3).launch{
-            viewModel.updateProfileWithImage(editTextProfile.text.toString(), profileImageUrl)
+            viewModel.updateProfileWithImage(editTextProfile.text.toString(), profileImageUrl, MainActivity.currentUser!!.token)
             viewModel.isSuccessful2?.observe(this@ProfileActivity, androidx.lifecycle.Observer {
                 if(it == true){
                     Toast.makeText(applicationContext, "Profile successfully updated!", Toast.LENGTH_LONG).show()

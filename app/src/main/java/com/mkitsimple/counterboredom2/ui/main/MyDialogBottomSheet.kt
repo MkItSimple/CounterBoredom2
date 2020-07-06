@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.my_dialog_bottom_sheet.*
 
 class MyDialogBottomSheet(filename: String) : BottomSheetDialogFragment() {
 
-    var firebaseStorage: FirebaseStorage? = null
+    //var firebaseStorage: FirebaseStorage? = null
     var storageReference: StorageReference? = null
     var ref: StorageReference? = null
     val filename: String = filename
@@ -34,9 +34,10 @@ class MyDialogBottomSheet(filename: String) : BottomSheetDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         tvSaveImage.setOnClickListener {
-            Toast.makeText(context, "Image Saved!", Toast.LENGTH_LONG).show()
             //Snackbar snackbar = Snackbar
-            if (filename != ""){ download(it, filename) }
+            if (filename != ""){
+                download(it, filename)
+            }
         }
 
         tvCancelSave.setOnClickListener {
@@ -49,6 +50,7 @@ class MyDialogBottomSheet(filename: String) : BottomSheetDialogFragment() {
         ref = storageReference!!.child("messages").child(filename)
         ref!!.downloadUrl.addOnSuccessListener { uri ->
             dismiss()
+            Toast.makeText(context, "Image Saved!", Toast.LENGTH_LONG).show()
             val url = uri.toString()
             downloadFiles(
                 it.context,

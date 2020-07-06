@@ -86,18 +86,6 @@ class ChatLogActivity : AppCompatActivity() {
         //setDummyData()
         listenForMessages()
 
-//        imageview_to_row.setOnLongClickListener{
-//            toast("long click")
-//            return@setOnLongClickListener true
-//        }
-
-//        chatLogEditText.setOnClickListener {
-//            MyDialogBottomSheet().show(
-//                supportFragmentManager,
-//                ""
-//            )
-//        }
-
         // Attemt to send message
         chatLogSendbutton.setOnClickListener {
             //performSendMessage(token!!)
@@ -151,20 +139,24 @@ class ChatLogActivity : AppCompatActivity() {
             viewModel.listenForMessagesResultChatMessage?.observe(this@ChatLogActivity, Observer {
                 // Check if 1 ChatMessage, if 2 ImageMessage
                 if (it.third == 1){
-                    val chatMessage = it.first
+                    val chatMessage = it.first.first
+                    val cWhen = it.second.first
                     if (chatMessage.fromId == mAuth.uid) {
-                        adapter.add(ChatFromItem(chatMessage, MainActivity.currentUser!!))
+                        adapter.add(ChatFromItem(chatMessage, MainActivity.currentUser!!, cWhen))
                     } else {
-                        adapter.add(ChatToItem(chatMessage, toUser!!))
+                        adapter.add(ChatToItem(chatMessage, toUser!!, cWhen))
                     }
                 } else {
-                    val imageMessage = it.second
+                    val imageMessage = it.first.second
+                    val mWhen = it.second.second
                     if (imageMessage.fromId == mAuth.uid) {
-                        adapter.add(ImageToItem(imageMessage, MainActivity.currentUser!!))
+                        adapter.add(ImageToItem(imageMessage, MainActivity.currentUser!!, supportFragmentManager, mWhen))
                     } else {
-                        adapter.add(ImageFromItem(imageMessage, toUser!!, supportFragmentManager))
+                        adapter.add(ImageFromItem(imageMessage, toUser!!, supportFragmentManager, mWhen))
                     }
                 }
+
+                recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
             })
         }
     }
@@ -184,16 +176,19 @@ class ChatLogActivity : AppCompatActivity() {
     //private fun performSendMessage(token: String) {
     private fun performSendMessage() {
         val text = chatLogEditText.text.toString()
-        CoroutineScope(Dispatchers.Main + job4).launch{
-            viewModel.performSendMessage(toId!!, fromId, text)
-            viewModel.isPerformSendMessageSuccessful?.observe(this@ChatLogActivity, Observer {
-                if(it){
-                    chatLogEditText.text.clear()
-                    recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
-                }
-            })
-            // Send notification to receiver
-            //viewModel.sendNotification(token, MainActivity.currentUser!!.username, text)
+        if(text != ""){
+            CoroutineScope(Dispatchers.Main + job4).launch{
+                viewModel.performSendMessage(toId!!, fromId, text)
+                viewModel.isPerformSendMessageSuccessful?.observe(this@ChatLogActivity, Observer {
+                    if(it){
+                        chatLogEditText.text.clear()
+                        recylerViewChatLog.scrollToPosition(adapter.itemCount - 1)
+                    }
+                })
+
+                // Send notification to receiver
+                viewModel.sendNotification(token!!, MainActivity.currentUser!!.username, text)
+            }
         }
     }
 

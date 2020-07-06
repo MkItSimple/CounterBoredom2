@@ -4,24 +4,20 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.mkitsimple.counterboredom2.BaseApplication
 
 import com.mkitsimple.counterboredom2.R
 import com.mkitsimple.counterboredom2.data.models.ChatMessage
 import com.mkitsimple.counterboredom2.ui.views.LatestChatItems
-import com.mkitsimple.counterboredom2.utils.Coroutines
 import com.mkitsimple.counterboredom2.viewmodels.ViewModelFactory
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.fragment_latest_chats.*
-import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -79,18 +75,18 @@ class LatestChatsFragment : Fragment() {
         CoroutineScope(Main + job1).launch{
             viewModel.listenForLatestMessages()
             viewModel.listenForLatestMessagesResult?.observe(viewLifecycleOwner, Observer {
-                latestMessagesMap = it
+                latestMessagesMap = it.first
                 //Log.d("resultMap", "resultMap: " + resultMap)
-                refreshRecyclerViewMessages()
+                refreshRecyclerViewMessages(it.second)
             })
         }
     }
 
-    private fun refreshRecyclerViewMessages() {
+    private fun refreshRecyclerViewMessages(mWhen: String) {
         adapter.clear()
         val resultMap = latestMessagesMap.entries.sortedByDescending { it.value.timestamp }.associate { it.toPair() }
         resultMap.values.forEach {
-            adapter.add(LatestChatItems(it))
+            adapter.add(LatestChatItems(it, mWhen))
         }
         recyclerviewLatestChats.adapter = adapter
 

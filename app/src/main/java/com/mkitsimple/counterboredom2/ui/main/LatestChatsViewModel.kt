@@ -11,7 +11,7 @@ class LatestChatsViewModel @Inject constructor() : ViewModel() {
     @Inject
     lateinit var repository: MessageRepository
 
-    var listenForLatestMessagesResult: LiveData<HashMap<String, ChatMessage>>? = null
+    var listenForLatestMessagesResult: LiveData<Pair<HashMap<String, ChatMessage>, String>>? = null
     suspend fun listenForLatestMessages() {
         listenForLatestMessagesResult = repository.listenForLatestMessages()
     }

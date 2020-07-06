@@ -51,7 +51,7 @@ class ChatLogViewModel @Inject constructor() : ViewModel() {
         dbUsers.addChildEventListener(childEventListener)
     }
 
-    var listenForMessagesResultChatMessage: LiveData<Triple<ChatMessage, ImageMessage, Int>>? = null
+    var listenForMessagesResultChatMessage: LiveData<Triple<Pair<ChatMessage, ImageMessage>, Pair<String, String>, Int>>? = null
     suspend fun listenForMessages(uid: String?) {
         listenForMessagesResultChatMessage = repository.listenForMessages(uid)
     }
@@ -96,10 +96,10 @@ class ChatLogViewModel @Inject constructor() : ViewModel() {
     private val _isNotificationSuccessful = MutableLiveData<Boolean>()
     val isNotificationSuccessful: LiveData<Boolean> get() = _isNotificationSuccessful
 
-//    var isSendNotificationSuccessful: LiveData<Boolean>? = null
-//    suspend fun sendNotification(token: String, username: String, text: String) {
-//        isSendNotificationSuccessful = repository.sendNotification(token, username, text)
-//    }
+    var isSendNotificationSuccessful: LiveData<Boolean>? = null
+    suspend fun sendNotification(token: String, username: String, text: String) {
+        isSendNotificationSuccessful = repository.sendNotification(token, username, text)
+    }
 
 //    override fun onCleared() {
 //        super.onCleared()

@@ -1,7 +1,6 @@
 package com.mkitsimple.counterboredom2.data.repositories
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -46,11 +45,14 @@ class UserRepository {
         return uid
     }
 
-    suspend fun updateProfile(username: String, profileImageUrl: String): MutableLiveData<Any> {
+    suspend fun updateProfile(
+        username: String,
+        curretUser: User?
+    ): MutableLiveData<Any> {
         val returnValue = MutableLiveData<Any>()
         val uid = FirebaseAuth.getInstance().uid ?: ""
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        val user = Profile(uid, username, profileImageUrl)
+        val user = User(uid, username, curretUser!!.profileImageUrl, curretUser.token)
         ref.setValue(user)
             .addOnSuccessListener {
                 returnValue.value = true
@@ -61,11 +63,15 @@ class UserRepository {
         return returnValue
     }
 
-    suspend fun updateProfileWithImage(username: String, profileImageUrl: String): MutableLiveData<Any> {
+    suspend fun updateProfileWithImage(
+        username: String,
+        profileImageUrl: String,
+        token: String
+    ): MutableLiveData<Any> {
         val returnValue = MutableLiveData<Any>()
         val uid = FirebaseAuth.getInstance().uid ?: ""
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        val user = Profile(uid, username, profileImageUrl)
+        val user = User(uid, username, profileImageUrl, token)
         ref.setValue(user)
             .addOnSuccessListener {
                 returnValue.value = true
