@@ -57,7 +57,7 @@ class MyDialogBottomSheet(filename: String) : BottomSheetDialogFragment() {
                 Environment.DIRECTORY_DOWNLOADS,
                 url
             )
-        }.addOnFailureListener { }
+        }.addOnFailureListener {}
     }
 
     private fun downloadFiles(
