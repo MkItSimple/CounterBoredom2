@@ -16,7 +16,8 @@
         android:background="@color/transparentBackground"
         android:src="@drawable/ic_arrow_back_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/todo" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -26,7 +27,8 @@
         android:layout_marginTop="120dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/cb_logo" />
+        app:srcCompat="@drawable/cb_logo"
+        android:contentDescription="@string/todo" />
 
 
 

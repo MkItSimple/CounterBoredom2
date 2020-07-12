@@ -16,14 +16,15 @@
         android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/todo" />
 
     <EditText
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/form_edittext_background"
-        android:hint="Email"
+        android:hint="@string/email"
         android:textColor="#454c55"
         android:textColorHint="#707881"
         android:fontFamily="@font/montserrat_medium"
@@ -34,7 +35,6 @@
         android:paddingTop="15dp"
         android:paddingRight="20dp"
         android:paddingBottom="15dp"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewLogo" />
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/form_edittext_background"
-        android:hint="Password"
+        android:hint="@string/password"
         android:textColor="#454c55"
         android:textColorHint="#707881"
         android:fontFamily="@font/montserrat_medium"
@@ -65,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#fff"
-        android:text="Register"
+        android:text="@string/login"
         android:textSize="18sp"
         android:fontFamily="@font/montserrat_bold"
         android:layout_marginLeft="30dp"
@@ -83,7 +83,7 @@
         android:id="@+id/textViewBackToRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Back to registration"
+        android:hint="@string/back_to_registration"
         android:textColor="#434a54"
         android:textColorHint="#6772e7"
         android:textSize="18sp"

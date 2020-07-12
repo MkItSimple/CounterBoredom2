@@ -7,7 +7,6 @@
     tools:context=".ui.main.SplashActivity"
     android:background="@color/whiteBackround">
 
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="300dp"
@@ -16,5 +15,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/cb_flash_logo" />
+        app:srcCompat="@drawable/cb_flash_logo"
+        android:contentDescription="@string/todo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

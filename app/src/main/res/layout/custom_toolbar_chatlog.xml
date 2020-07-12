@@ -5,8 +5,6 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/background_primary_gradient">
-<!--    android:id="@+id/customToolbarChatLog"
-android:id="@+id/toolbarCustom"-->
     <Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +15,7 @@ android:id="@+id/toolbarCustom"-->
             android:id="@+id/backArrow"
             android:layout_width="25dp"
             android:layout_height="40dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:background="@color/transparentBackground"
             android:src="@drawable/ic_arrow_back_white_24dp" />
 
@@ -25,7 +23,7 @@ android:id="@+id/toolbarCustom"-->
             android:id="@+id/customToolbarChatLogCircleImageView"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:background="@color/transparentBackground"
             android:src="@drawable/profile_default" />
 
@@ -35,9 +33,8 @@ android:id="@+id/toolbarCustom"-->
             android:layout_height="wrap_content"
             android:background="@color/transparentBackground"
             android:fontFamily="@font/montserrat_medium"
-            android:text="Choreyn anania"
-            android:textSize="16dp"
+            android:text="@string/choreyn_anania"
+            android:textSize="16sp"
             android:textColor="@color/colorTextWhite" />
     </Toolbar>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

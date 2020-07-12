@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,44 +15,30 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/textViewUsernameLatestChats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
         android:background="@color/transparentBackground"
         android:fontFamily="@font/montserrat_bold"
-        android:text="Choreyn Anania"
+        android:text="@string/choreyn_anania"
         android:textColor="@color/colorTextBlackDark"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/circleImageViewLatestChats"
         app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/textViewMessageLatestMessage"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:maxHeight="40dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:fontFamily="@font/montserrat_medium"
-        android:text="Some latest chats here"
+        android:text="@string/some_latest_chats_here"
         android:textColor="@color/colorTextBlackLight"
         android:textSize="14sp"
         android:background="@color/transparentBackground"
         app:layout_constraintStart_toEndOf="@+id/circleImageViewLatestChats"
         app:layout_constraintTop_toBottomOf="@+id/textViewUsernameLatestChats"/>
-
-<!--    <TextView-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:fontFamily="@font/montserrat_medium"-->
-<!--        android:text="Jul 23 2020"-->
-<!--        android:textColor="@color/colorTextBlackLight"-->
-<!--        android:textSize="14sp"-->
-<!--        android:layout_marginTop="5dp"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/textViewUsernameLatestChats"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

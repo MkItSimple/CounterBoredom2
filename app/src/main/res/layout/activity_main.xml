@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainActivity"
-    android:id="@+id/layoutMain">
+    tools:context=".ui.main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -30,7 +29,7 @@
                 android:id="@+id/circleImageViewMain"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
                 android:background="@color/transparentBackground"
                 android:src="@drawable/profile_default"/>
         </androidx.appcompat.widget.Toolbar>
