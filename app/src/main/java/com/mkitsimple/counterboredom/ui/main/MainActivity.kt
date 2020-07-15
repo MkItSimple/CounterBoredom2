@@ -2,6 +2,7 @@ package com.mkitsimple.counterboredom.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.Nullable
@@ -12,10 +13,15 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.mkitsimple.counterboredom.BaseApplication
 import com.mkitsimple.counterboredom.R
 import com.mkitsimple.counterboredom.data.models.User
 import com.mkitsimple.counterboredom.ui.auth.RegisterActivity
+import com.mkitsimple.counterboredom.utils.toast
 import com.mkitsimple.counterboredom.viewmodels.ViewModelFactory
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
@@ -23,7 +29,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -43,16 +48,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         ( this.applicationContext as BaseApplication).appComponent
             .newMainComponent().inject(this)
 
-        viewModel = ViewModelProviders.of(this, factory)[MainViewModel::class.java]
+        viewModel = ViewModelProviders.of(this@MainActivity, factory)[MainViewModel::class.java]
         job1 = Job()
 
         toolbar.setTitle("")
         setSupportActionBar(toolbar)
-
         val latestChatsFragment = LatestChatsFragment()
         val friendsFragment = FriendsListFragment()
 
@@ -62,11 +65,13 @@ class MainActivity : AppCompatActivity() {
         viewPagerAdapter.addFragment(latestChatsFragment, getString(R.string.LATEST_CHATS))
         viewPagerAdapter.addFragment(friendsFragment, getString(R.string.FRIENDS_LIST))
         view_pager.setAdapter(viewPagerAdapter)
-
-        circleImageViewMain.setOnClickListener {
-            startActivity(intentFor<ProfileActivity>())
-        }
-
+//
+//        circleImageViewMain.setOnClickListener {
+//            //startActivity(intentFor<ProfileActivity>())
+//            val intent = Intent(this, ProfileActivity::class.java)
+//            startActivity(intent)
+//        }
+//
         verifyUserIsLoggedIn()
         fetchCurrentUser()
     }
@@ -117,32 +122,63 @@ class MainActivity : AppCompatActivity() {
 
     private fun verifyUserIsLoggedIn() {
         val uid = viewModel.uid()
-        if (uid == null) {
-            val intent = Intent(this, RegisterActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
+//        if (uid == null) {
+//            val intent = Intent(this, RegisterActivity::class.java)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            startActivity(intent)
+//        }
     }
 
     private fun fetchCurrentUser() {
-        CoroutineScope(Dispatchers.Main + job1).launch {
-            viewModel.fetchCurrentUser()
-            viewModel.fetchCurrentUserResult?.observe(this@MainActivity, Observer {
-                currentUser = it
-                if (currentUser?.profileImageUrl != "null") {
-                    Picasso.get().load(currentUser?.profileImageUrl).into(circleImageViewMain)
-                }
-            })
-        }
+//        CoroutineScope(Dispatchers.Main + job1).launch {
+//
+//        }
+        //toast("fetchCurrentUser")
+
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener {
+
+            override fun onDataChange(p0: DataSnapshot) {
+                //toast("called")
+                currentUser = p0.getValue(User::class.java)
+                loadImageView(currentUser!!)
+//                //Log.d("LatestMessages", "Current user ${cUser.profileImageUrl}")
+                //toast(currentUser!!.profileImageUrl)
+                //Picasso.get().load(currentUser!!.profileImageUrl).into(circleImageViewMain)
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+
+//        viewModel.fetchCurrentUser()
+//        viewModel.currentUser.observe(this, Observer {
+//            toast(it.profileImageUrl)
+//        })
+//        viewModel.fetchCurrentUserResult?.observe(this@MainActivity, Observer {
+//            //currentUser = it
+//            //loadImageView(it.profileImageUrl)
+//            //if (currentUser!!.profileImageUrl != "null") {
+//            toast(it.profileImageUrl)
+//
+//            //}
+//        })
     }
 
-    override fun onResume() {
-        super.onResume()
-        fetchCurrentUser()
+    private fun loadImageView(user: User) {
+        toast(user.profileImageUrl)
+        //Picasso.get().load(user.profileImageUrl).into(circleImageViewMain)
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if(::job1.isInitialized) job1.cancel()
-    }
+//
+//    override fun onResume() {
+//        super.onResume()
+//        //fetchCurrentUser()
+//    }
+//
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        if(::job1.isInitialized) job1.cancel()
+//    }
 }

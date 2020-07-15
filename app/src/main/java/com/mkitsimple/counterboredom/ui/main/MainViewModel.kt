@@ -5,7 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.mkitsimple.counterboredom.data.models.Profile
 import com.mkitsimple.counterboredom.data.models.User
 import com.mkitsimple.counterboredom.data.repositories.UserRepository
@@ -32,10 +35,27 @@ class MainViewModel @Inject constructor() : ViewModel() {
     private val _isUpdated = MutableLiveData<Task<Void>>()
     val isUpdated: LiveData<Task<Void>> get() = _isUpdated
 
-    var fetchCurrentUserResult: LiveData<User>? = null
-    suspend fun fetchCurrentUser() {
-        fetchCurrentUserResult = repository.fetchCurrentUser()
+//    var fetchCurrentUserResult: LiveData<User>? = null
+//    fun fetchCurrentUser() {
+//        fetchCurrentUserResult = repository.fetchCurrentUser()
+//    }
+
+    fun fetchCurrentUser() {
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener {
+
+            override fun onDataChange(p0: DataSnapshot) {
+                _currentUser.value = p0.getValue(User::class.java)
+                //Log.d("LatestMessages", "Current user ${cUser.profileImageUrl}")
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
+
 
     fun updateUser(profileImageUrl: String, username: String) {
         val uid = FirebaseAuth.getInstance().uid ?: ""

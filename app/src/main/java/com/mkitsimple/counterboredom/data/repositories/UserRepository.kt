@@ -20,7 +20,7 @@ class UserRepository {
 
     val latestMessagesMap = HashMap<String, ChatMessage>()
 
-    suspend fun fetchCurrentUser() : MutableLiveData<User> {
+    fun fetchCurrentUser() : MutableLiveData<User> {
         val returnValue = MutableLiveData<User>()
         val uid = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")

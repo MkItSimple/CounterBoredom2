@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mkitsimple.counterboredom">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name="com.mkitsimple.counterboredom.BaseApplication"
@@ -15,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity android:name="com.mkitsimple.counterboredom.ui.main.ViewImageActivity"/>
-        <activity android:name="com.mkitsimple.counterboredom.ui.main.SplashActivity" >
+        <activity android:name="com.mkitsimple.counterboredom.ui.main.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,7 +35,9 @@
         </activity>
         <activity android:name="com.mkitsimple.counterboredom.ui.auth.RegisterActivity" />
         <activity android:name="com.mkitsimple.counterboredom.ui.auth.LoginActivity" />
-        <activity android:name="com.mkitsimple.counterboredom.ui.main.MainActivity"/>
+        <activity android:name="com.mkitsimple.counterboredom.ui.main.MainActivity">
+
+        </activity>
 
         <service android:name="com.mkitsimple.counterboredom.ui.MyFirebaseMessagingService">
             <intent-filter>

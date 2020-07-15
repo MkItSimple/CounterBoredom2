@@ -8,4 +8,5 @@
     <color name="colorTextBlackLight">#464d56</color>
     <color name="colorTextBlackDark">#212121</color>
     <color name="colorTextWhite">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>

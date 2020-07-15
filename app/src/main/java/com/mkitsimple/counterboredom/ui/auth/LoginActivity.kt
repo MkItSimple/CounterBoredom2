@@ -8,6 +8,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mkitsimple.counterboredom.BaseApplication
 import com.mkitsimple.counterboredom.R
+import com.mkitsimple.counterboredom.ui.main.ChatLogActivity
+import com.mkitsimple.counterboredom.ui.main.LatestChatsFragment
 import com.mkitsimple.counterboredom.ui.main.MainActivity
 import com.mkitsimple.counterboredom.utils.Coroutines
 import com.mkitsimple.counterboredom.utils.longToast
@@ -69,8 +71,11 @@ class LoginActivity : AppCompatActivity() {
             viewModel.performLogin(email, password)
             viewModel.loginResult?.observe(this, Observer {
                 if (it == true) {
-                    startActivity(intentFor<MainActivity>().clearTask().newTask())
+                    //startActivity(intentFor<MainActivity>().clearTask().newTask())
                     //longToast(it.toString())
+                    val intent = Intent(applicationContext, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
                 } else {
                     longToast(it.toString())
                 }

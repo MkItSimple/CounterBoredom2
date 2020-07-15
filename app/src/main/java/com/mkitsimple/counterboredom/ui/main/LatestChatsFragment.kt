@@ -61,7 +61,7 @@ class LatestChatsFragment : Fragment() {
         // set item click listener on your adapter
         adapter.setOnItemClickListener { item, _ ->
             val row = item as LatestChatItems
-            val intent = Intent(context, ChatLogActivity::class.java)
+            val intent = Intent(getActivity()!!.getBaseContext(), ChatLogActivity::class.java)
             intent.putExtra(USER_KEY, row.chatPartnerUser)
             startActivity(intent)
         }
